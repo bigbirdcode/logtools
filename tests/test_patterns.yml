@@ -1,0 +1,18 @@
+- App start:
+    pattern: \[InitializeApplication\] Initialized Application ([0-9.]+)
+    block_start: True
+    needed: False
+    property: \1
+    style:
+      - bold
+      - green
+    visible: True
+- App end:
+    pattern: \[FinalizeApplication\] Application stop
+    block_start: False
+    needed: True
+    property:
+    style:
+      - bold
+      - green
+    visible: True
