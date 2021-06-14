@@ -30,7 +30,8 @@ Status
 
 All the above things are done at a very basic level. It is already
 usable, but really limited. Also design is a bit raw, need some
-refactor iteration. I would like to continue and enhance since I
+refactor iteration.
+I would like to continue and enhance since I
 need it and I have much more idea, how to go on.
 
 :-)
