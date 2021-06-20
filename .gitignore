@@ -106,5 +106,6 @@ testenv/
 
 
 # ide files
+.idea
 *project
 *workspace

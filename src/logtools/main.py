@@ -3,11 +3,12 @@
 By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
-
-
-import fileinput
+import argparse
+import io
 import os
+import pathlib
 import sys
+from textwrap import dedent
 
 import wx
 import wx.lib.agw.aui as aui
@@ -258,8 +259,8 @@ class LogData:
     Parent class for the data, components will reach the data through this
     """
 
-    def __init__(self):
-        self.patterns = LogPatterns()
+    def __init__(self, pattern_file):
+        self.patterns = LogPatterns(pattern_file)
         self.log_groups = LogGroups(self)
         self.log_group = None
 
@@ -270,17 +271,93 @@ class LogData:
         self.log_group = self.log_groups.groups[num]
 
 
+def errormessage(msg):
+    """
+    Print out error messages either to the console or to a dialog box then exit
+
+    When there is a problem in argparse parameters or provided files do not exist
+    then we can still show these to the user however the app was  started.
+    """
+    if sys.executable.endswith("pythonw.exe"):
+        app = wx.App()
+        dlg = wx.MessageDialog(None, msg, "LogTools Error", wx.OK | wx.ICON_ERROR)
+        dlg.Center()
+        dlg.ShowModal()
+        dlg.Destroy()
+        app.Destroy()
+    else:
+        print(msg)
+    sys.exit(1)
+
+
 def main():
     """
     Main function, starting point as usual
     """
-    if len(sys.argv) < 2:
-        print("Must have a filename")
-        sys.exit(1)
-    log_data = LogData()
+    # Define parameters to use
+    default_patterns_yml = "logtools_default_patterns.yml"
+    folder_help = """
+        If pattern_file is not provided then logtools will try to read the file
+        'logtools_default_patterns.yml' from the following possible locations:
+        1. actual folder 2. user's home folder 3. user's Documents folder
+    """
+    parser = argparse.ArgumentParser(
+        description='Log file viewer.',
+        epilog=folder_help,
+    )
+    parser.add_argument('log_files', type=pathlib.Path, nargs='+',
+                        help='log files to display')
+    parser.add_argument('-p', '--pattern_file', type=pathlib.Path,
+                        help='pattern file in strict YAML format')
+
+    # argparse do not handle well non-CLI usage
+    # the newly added exit_on_error=False parameter is buggy!
+    # it can also throw various types of exceptions!
+    # the only option is to redirect output and capture SystemExit
+    # ugly as hell, sorry
+    was_error = False
+    bkp_stdout, bkp_stderr = sys.stdout, sys.stderr
+    output = io.StringIO()
+    sys.stdout, sys.stderr = output, output
+    try:
+        args = parser.parse_args()
+    except (SystemExit, Exception):
+        was_error = True
+    finally:
+        sys.stdout, sys.stderr = bkp_stdout, bkp_stderr
+    if was_error:
+        errormessage(output.getvalue())
+
+    # Locate and check tha pattern file
+    if args.pattern_file:
+        pattern_file = args.pattern_file
+        if not pattern_file.is_file():
+            errormessage(f"{pattern_file} pattern file not found!")
+    else:
+        default_pattern_file = pathlib.Path(default_patterns_yml)
+        if default_pattern_file.is_file():
+            pattern_file = default_pattern_file
+        elif (pathlib.Path.home() / default_pattern_file).is_file():
+            pattern_file = pathlib.Path.home() / default_pattern_file
+        elif (pathlib.Path.home() / "Documents" / default_pattern_file).is_file():
+            pattern_file = pathlib.Path.home() / "Documents" / default_pattern_file
+        else:
+            errormessage("Pattern file not found!\n" + dedent(folder_help))
+
+    # Check the log files
+    for log_file in args.log_files:
+        if not log_file.is_file():
+            errormessage(f"{log_file} log file not found!")
+
+    # Initialize LogData container and read the patterns
+    log_data = LogData(pattern_file)
     log_groups = log_data.log_groups
-    for line in fileinput.input(openhook=fileinput.hook_encoded("latin2")):
-        log_groups.add_line(line)
+
+    # Read the log files
+    for log_file in args.log_files:
+        with log_file.open(encoding="latin2") as f:
+            for line in f:
+                log_groups.add_line(line)
     log_groups.finalize()
     log_data.set_group(0)
 
