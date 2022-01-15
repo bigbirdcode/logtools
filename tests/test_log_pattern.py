@@ -13,7 +13,7 @@ import pytest
 from logtools.log_pattern import LogPattern
 
 
-# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
+# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name,use-implicit-booleaness-not-comparison
 
 
 GOOD_PATTERN = {

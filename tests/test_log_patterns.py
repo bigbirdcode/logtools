@@ -4,6 +4,10 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
+# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
+
+
+import pathlib
 
 import pytest
 from strictyaml import YAMLValidationError
@@ -11,7 +15,7 @@ from strictyaml import YAMLValidationError
 from logtools.log_patterns import LogPatterns, parse_yml
 
 
-# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
+TEST_PATTERNS_YML = pathlib.Path("tests/test_patterns.yml")
 
 
 def test_parse_yml_ok():
@@ -63,19 +67,19 @@ def test_parse_yml_wrong_missing():
 
 
 def test_read_yml():
-    lps = LogPatterns("tests/test_patterns.yml")
+    lps = LogPatterns(TEST_PATTERNS_YML)
     assert list(lps.get_names()) == ["App start", "App end"]
 
 
 def test_get_block_starts():
-    lps = LogPatterns("tests/test_patterns.yml")
+    lps = LogPatterns(TEST_PATTERNS_YML)
     patterns = list(lps.get_block_starts())
     assert len(patterns) == 1
     assert patterns[0].name == "App start"
 
 
 def test_get_patterns():
-    lps = LogPatterns("tests/test_patterns.yml")
+    lps = LogPatterns(TEST_PATTERNS_YML)
     patterns = list(lps.get_patterns())
     assert len(patterns) == 2
     assert patterns[0].name == "App start"
@@ -83,7 +87,7 @@ def test_get_patterns():
 
 
 def test_create_from_existing():
-    lps = LogPatterns("tests/test_patterns.yml")
+    lps = LogPatterns(TEST_PATTERNS_YML)
     lps.patterns[0].count = 5
     lps2 = lps.get_clean_copy()
     assert list(lps2.get_names()) == ["App start", "App end"]

@@ -7,6 +7,7 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
+import pathlib
 from typing import Optional, List, Any
 
 import strictyaml as sy
@@ -57,14 +58,6 @@ def parse_yml(text: str) -> List[LogPattern]:
     return result
 
 
-def read_yml(file_name: str) -> str:
-    """
-    Just read in a file
-    """
-    with open(file_name) as f:
-        return f.read()
-
-
 class LogPatterns:
 
     """
@@ -72,15 +65,13 @@ class LogPatterns:
     """
 
     def __init__(
-        self, file_name: str = "patterns.yml", patterns: Optional[LogPatterns] = None
+        self, file_path: Optional[pathlib.Path], patterns: Optional[LogPatterns] = None
     ) -> None:
         self.patterns: list[LogPattern]
         if patterns is None:
-            self.patterns = parse_yml(read_yml(file_name))
+            self.patterns = parse_yml(file_path.read_text())
         else:
-            self.patterns = [
-                pattern.get_clean_copy() for pattern in patterns.get_patterns()
-            ]
+            self.patterns = [pattern.get_clean_copy() for pattern in patterns.get_patterns()]
 
     def get_block_starts(self):
         """
@@ -117,4 +108,4 @@ class LogPatterns:
         """
         Create a copy of self without the line data
         """
-        return LogPatterns("", self)
+        return LogPatterns(None, self)
