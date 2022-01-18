@@ -5,57 +5,90 @@ https://github.com/bigbirdcode/logtools
 """
 
 
+from __future__ import annotations
+
+from typing import Any
+
 from wx import stc
+
+from .log_block import LogBlock
 
 
 class LogDisplay(stc.StyledTextCtrl):
 
     """
-    The log display
+    The log display that is in the tabbed pages of the GUI
     """
 
     styles = {
         "bold": "bold",
         "italic": "italic",
+        "underline": "underline",
         "red": "fore:#FF0000",
         "green": "fore:#00FF00",
         "blue": "fore:#0000FF",
     }
 
-    def __init__(self, parent, log_group):
+    def __init__(self, parent: Any, log_block: LogBlock) -> None:
         super().__init__(parent, -1)
-        self.log_group = log_group
+        self.log_block = log_block
         self.SetMarginType(0, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(0, 50)
-        base_style = "size:10,face:Courier New"
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, base_style)
-        for i, pattern in enumerate(self.log_group.patterns.get_patterns()):
-            p_style_list = [base_style] + [self.styles[p] for p in pattern.style]
-            self.StyleSetSpec(i + 1, ",".join(p_style_list))
-        self.SetText(self.log_group.get_text())
-        for i, pattern in enumerate(self.log_group.patterns.get_patterns()):
-            for line in pattern.lines:
-                self.StartStyling(self.PositionFromLine(line))
-                self.SetStyling(len(self.log_group.lines[line]), i + 1)
+        self.base_style = "size:10,face:Courier New"
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, self.base_style)
+        self.create_pattern_styles()
+        self.SetText(self.log_block.get_text())
+        self.apply_pattern_styles()
         self.GotoLine(0)
         self.SetCaretLineVisible(True)
         self.SetCaretLineVisibleAlways(True)
 
-    def find_line(self, direction, pattern_num):
+    def create_pattern_styles(self) -> None:
+        """
+        Create styles from the pattern details
+        Styles are referenced by numbers, starting from 1
+        """
+        self.StyleClearAll()
+        for i, pattern in enumerate(self.log_block.patterns):
+            p_style_list = [self.base_style] + [self.styles[p] for p in pattern.style]
+            p_style = ",".join(p_style_list)
+            self.StyleSetSpec(i + 1, p_style)
+
+    def apply_pattern_styles(self) -> None:
+        """
+        Apply the pattern style information to the log lines
+        """
+        self.ClearDocumentStyle()
+        for i, pattern in enumerate(self.log_block.patterns):
+            for line in self.log_block.pattern_lines[pattern.name]:
+                self.StartStyling(self.PositionFromLine(line))
+                self.SetStyling(len(self.log_block.lines[line]), i + 1)
+
+    def update(self) -> None:
+        """
+        When a pattern changes find the new lines and apply styles
+
+        Note: currently everything is processed, later it will check modified states
+        """
+        self.log_block.search_patterns()
+        self.create_pattern_styles()
+        self.apply_pattern_styles()
+
+    def find_line(self, direction: str, pattern_num):
         """
         Find the previous or next line
         """
-        pattern = self.log_group.patterns.patterns[pattern_num]
+        pattern = self.log_block.patterns[pattern_num]
         act_line = self.GetCurrentLine()
         next_line = act_line
         if direction == ">":
-            for line in pattern.lines:
+            for line in self.log_block.pattern_lines[pattern.name]:
                 if line > act_line:
                     next_line = line
                     break
         else:
             prev = -1
-            for line in pattern.lines:
+            for line in self.log_block.pattern_lines[pattern.name]:
                 if line >= act_line:
                     break
                 prev = line

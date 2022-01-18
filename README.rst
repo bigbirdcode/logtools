@@ -15,9 +15,9 @@ There are many great log viewer out. But I wanted to write mine.
 The main difference that I don't really know in advance what I'm
 looking for in the logs. I know some patterns, and then I just
 want jump back and forth through them and looking for anomalies.
-When I find something else to search then I record a new patter.
+When I find something else to search then I record a new pattern.
 
-I also want to see some one block of log at once. So one run of
+I also want to see some blocks of log at once. So one run of
 the logger application or one processing block or so. All these
 will go to their own tab, quickly showing me how many blocks do
 the log have.

@@ -5,11 +5,16 @@ https://github.com/bigbirdcode/logtools
 """
 
 
+from __future__ import annotations
+
+from typing import Any
+
 import wx
 from wx.lib.agw import aui
 
-from logtools.gui_log_panel import LogPanel
-from logtools.gui_search_panel import SearchPanel
+from .log_data import LogData
+from .gui_log_displays import LogDisplays
+from .gui_search_panel import SearchPanel
 
 
 class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
@@ -18,20 +23,18 @@ class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
     Frame with AUI manager to manage tabs easily
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
-        self,
-        parent,
-        log_data,
-        id=-1,  # pylint: disable=redefined-builtin
-        title="AUI Test",
-        pos=wx.DefaultPosition,
-        size=(800, 600),
-        style=wx.DEFAULT_FRAME_STYLE,
-    ):
+    def __init__(self, app_data: LogData) -> None:
+        wx.Frame.__init__(
+            self,
+            parent=None,
+            id=-1,
+            title="Log Tools",
+            pos=wx.DefaultPosition,
+            size=(1200, 800),
+            style=wx.DEFAULT_FRAME_STYLE,
+        )
 
-        wx.Frame.__init__(self, parent, id, title, pos, size, style)
-
-        self.log_data = log_data
+        self.app_data = app_data
 
         self._mgr = aui.AuiManager()
 
@@ -39,7 +42,7 @@ class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         self._mgr.SetManagedWindow(self)
 
         # create several panes
-        self.search_terms = SearchPanel(self, self.log_data)
+        self.search_panel = SearchPanel(self, self.app_data)
 
         self.log_prop = wx.TextCtrl(
             self,
@@ -49,12 +52,12 @@ class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
             wx.Size(200, 150),
             wx.NO_BORDER | wx.TE_MULTILINE,
         )
-        self.log_prop.SetValue(self.log_data.log_groups.groups[0].get_props())
+        self.log_prop.SetValue(self.app_data.log_block.get_props())
 
-        self.log_panel = LogPanel(self, self.log_data)
+        self.log_panel = LogDisplays(self, self.app_data)
 
         # add the panes to the manager
-        self._mgr.AddPane(self.search_terms, aui.AuiPaneInfo().Left().Caption("Search Terms"))
+        self._mgr.AddPane(self.search_panel, aui.AuiPaneInfo().Left().Caption("Search Terms"))
         self._mgr.AddPane(
             self.log_prop, aui.AuiPaneInfo().Left().Caption("Selected Panel Properties")
         )
@@ -63,13 +66,15 @@ class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         # tell the manager to "commit" all the changes just made
         self._mgr.Update()
 
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-        
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
         self.Maximize(True)
 
-    def OnClose(self, event):  # pylint: disable=invalid-name
+    def on_close(self, event: Any) -> None:
         """
         Close the frame manager
         """
+        if self.app_data.yaml_modified:
+            self.app_data.patterns.write_yaml()
         self._mgr.UnInit()
         event.Skip()

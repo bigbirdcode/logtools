@@ -1,4 +1,4 @@
-black --line-length 98 src/logtools tests
-flake8 src/logtools tests
-pylint src/logtools tests
-mypy src/logtools tests
+black --line-length 98 src/logtools
+flake8 src/logtools
+pylint src/logtools
+mypy src/logtools

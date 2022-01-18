@@ -8,7 +8,7 @@ https://github.com/bigbirdcode/logtools
 from __future__ import annotations
 
 import pathlib
-from typing import Optional, List, Any
+from collections import UserList
 
 import strictyaml as sy
 
@@ -16,96 +16,84 @@ from .log_pattern import LogPattern
 
 
 # yaml patterns are read according to this schema
-SCHEMA = sy.Seq(
-    sy.MapPattern(
-        sy.Str(),
-        sy.Map(
-            {
-                "pattern": sy.Str(),
-                "block_start": sy.Bool(),
-                "needed": sy.Bool(),
-                "property": sy.Str(),
-                "style": sy.Seq(sy.Str()),
-                "visible": sy.Bool(),
-            }
-        ),
-    )
+# nearly all field processed runtime, but when block_start changes
+# then the application need to be restarted
+SCHEMA = sy.MapPattern(
+    sy.Str(),  # name of the pattern
+    sy.Map(
+        {
+            "pattern": sy.Str(),  # regexp string to search
+            "block_start": sy.Bool(),  # indication of a new bog block
+            "needed": sy.Bool(),  # when missing consider as crash
+            "property": sy.Str(),  # extract value from the regexp
+            "style": sy.Seq(sy.Str()),  # bold, italic, underline and color
+            "visible": sy.Bool(),  # display the line or not
+        }
+    ),
 )
 
 
-def parse_pattern(input_pattern: Any) -> LogPattern:
-    """
-    Convert a yaml pattern definition to log pattern object
-    """
-    assert len(input_pattern) == 1
-    name, data = input_pattern.popitem()
-    return LogPattern(name, data)
-
-
-def parse_yml(text: str) -> List[LogPattern]:
+def parse_yaml(text: str) -> list[LogPattern]:
     """
     Parse yaml input into a list of log pattern objects
     """
     result: list[LogPattern] = []
     input_data = sy.load(text, SCHEMA).data
-    for input_pattern in input_data:
+    for k, v in input_data.items():
         try:
-            pattern = parse_pattern(input_pattern)
+            pattern = LogPattern(k, v)
         except Exception as exc:
-            raise RuntimeError("Parse error at " + str(input_pattern)) from exc
+            raise RuntimeError("Parse error at " + str(k)) from exc
         else:
             result.append(pattern)
     return result
 
 
-class LogPatterns:
+class LogPatterns(UserList):
 
     """
     Class to hold a list of log pattern objects for a log
     """
 
-    def __init__(
-        self, file_path: Optional[pathlib.Path], patterns: Optional[LogPatterns] = None
-    ) -> None:
-        self.patterns: list[LogPattern]
-        if patterns is None:
-            self.patterns = parse_yml(file_path.read_text())
-        else:
-            self.patterns = [pattern.get_clean_copy() for pattern in patterns.get_patterns()]
+    def __init__(self, file_path: pathlib.Path) -> None:
+        super().__init__()
+        self.file_path = file_path
+        self.data = parse_yaml(file_path.read_text())
+
+    def write_yaml(self) -> None:
+        """
+        Write out the patterns to a new yaml file, backup the previous one
+        """
+        self.file_path.replace(self.file_path.with_suffix(".bkp"))
+        result = {pattern.name: pattern.get_data() for pattern in self.data}
+        self.file_path.write_text(sy.as_document(result, SCHEMA).as_yaml())
 
     def get_block_starts(self):
         """
         Get the patterns that can start a new log group
         """
-        for pattern in self.patterns:
+        for pattern in self.data:
             if pattern.block_start:
                 yield pattern
 
-    def get_patterns(self):
+    def get_modified(self):
         """
         Get all the patterns
         """
-        for pattern in self.patterns:
-            yield pattern
+        for pattern in self.data:
+            if pattern.modified:
+                yield pattern
 
     def get_names(self):
         """
         Get all the pattern names
         """
-        for pattern in self.patterns:
+        for pattern in self.data:
             yield pattern.name
 
-    def get_line_pattern(self, line_num):
+    def clear_modified(self) -> None:
         """
-        Get the pattern that matched a log line
+        Clear all modified flags
         """
-        for pattern in self.patterns:
-            if pattern.has_line(line_num):
-                return pattern
-        return None
-
-    def get_clean_copy(self):
-        """
-        Create a copy of self without the line data
-        """
-        return LogPatterns(None, self)
+        for pattern in self.data:
+            pattern.modified = False

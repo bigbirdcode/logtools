@@ -5,6 +5,8 @@ https://github.com/bigbirdcode/logtools
 """
 
 
+from __future__ import annotations
+
 import argparse
 import io
 import os
@@ -31,9 +33,9 @@ if __name__ == "__main__" and __package__ is None:
 
 # Now relative import is ok
 # pylint: disable=wrong-import-position
-from logtools.gui_main_frame import MainFrame
-from logtools.log_data import LogData
-from logtools.log_patterns import LogPatterns
+from .gui_main_frame import MainFrame
+from .log_data import LogData
+from .log_patterns import LogPatterns
 
 
 DEFAULT_PATTERNS_YML = "logtools_default_patterns.yml"
@@ -138,10 +140,10 @@ def main() -> None:
     args = parse_arguments()
     check_logfiles(args.log_files)
     log_patterns = read_patterns(args)
-    log_data = LogData(log_patterns, args.log_files)
+    app_data = LogData(log_patterns, args.log_files)
     # Making GUI
     app = wx.App(0)
-    frame = MainFrame(None, log_data)
+    frame = MainFrame(app_data)
     app.SetTopWindow(frame)
     frame.Show()
     app.MainLoop()

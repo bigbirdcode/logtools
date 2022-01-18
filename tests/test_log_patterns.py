@@ -4,7 +4,7 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
+# WARNING! Test is obsolete, need update!
 
 
 import pathlib
@@ -12,7 +12,10 @@ import pathlib
 import pytest
 from strictyaml import YAMLValidationError
 
-from logtools.log_patterns import LogPatterns, parse_yml
+from logtools.log_patterns import LogPatterns, parse_yaml
+
+
+# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
 
 
 TEST_PATTERNS_YML = pathlib.Path("tests/test_patterns.yml")
@@ -30,7 +33,7 @@ def test_parse_yml_ok():
           - green
         visible: True
     """
-    result = parse_yml(yml)
+    result = parse_yaml(yml)
     assert len(result) == 1
     assert result[0].name == "App start"
 
@@ -48,7 +51,7 @@ def test_parse_yml_wrong_bool():
         visible: True
     """
     with pytest.raises(YAMLValidationError):
-        _ = parse_yml(yml)
+        _ = parse_yaml(yml)
 
 
 def test_parse_yml_wrong_missing():
@@ -63,7 +66,7 @@ def test_parse_yml_wrong_missing():
         visible: True
     """
     with pytest.raises(YAMLValidationError):
-        _ = parse_yml(yml)
+        _ = parse_yaml(yml)
 
 
 def test_read_yml():

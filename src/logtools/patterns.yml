@@ -1,45 +1,45 @@
-- App start:
-    pattern: \[InitializeApplication\] Initialized Application ([0-9.]+)
-    block_start: True
-    needed: False
-    property: \1
-    style:
-      - bold
-      - green
-    visible: True
-- App end:
-    pattern: \[FinalizeApplication\] Application stop
-    block_start: False
-    needed: True
-    property:
-    style:
-      - bold
-      - green
-    visible: True
-- Process starts:
-    pattern: Process starts
-    block_start: False
-    needed: False
-    property:
-    style:
-      - bold
-      - blue
-    visible: True
-- Process ends:
-    pattern: Process ends
-    block_start: False
-    needed: False
-    property:
-    style:
-      - bold
-      - blue
-    visible: True
-- ERROR log:
-    pattern: ERROR
-    block_start: False
-    needed: False
-    property:
-    style:
-      - bold
-      - red
-    visible: True
+App start:
+  pattern: \[InitializeApplication\] Initialized Application ([0-9.]+)
+  block_start: yes
+  needed: no
+  property: \1
+  style:
+  - bold
+  - green
+  visible: yes
+App end:
+  pattern: \[FinalizeApplication\] Application stop
+  block_start: no
+  needed: yes
+  property:
+  style:
+  - bold
+  - green
+  visible: yes
+Process starts:
+  pattern: Process starts
+  block_start: no
+  needed: no
+  property:
+  style:
+  - bold
+  - blue
+  visible: yes
+Process ends:
+  pattern: Process ends
+  block_start: no
+  needed: no
+  property:
+  style:
+  - bold
+  - blue
+  visible: yes
+ERROR log:
+  pattern: ERROR
+  block_start: no
+  needed: no
+  property:
+  style:
+  - bold
+  - red
+  visible: yes

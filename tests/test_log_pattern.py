@@ -5,6 +5,9 @@ https://github.com/bigbirdcode/logtools
 """
 
 
+# WARNING! Test is obsolete, need update!
+
+
 import copy
 import re
 
@@ -46,7 +49,7 @@ def test_good_pattern(pattern):
 
 def test_missing_pattern(pattern):
     del pattern["pattern"]
-    with pytest.raises(RuntimeError):
+    with pytest.raises(KeyError):
         _ = LogPattern("My Name", pattern)
 
 

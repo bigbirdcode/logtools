@@ -5,8 +5,10 @@ https://github.com/bigbirdcode/logtools
 """
 
 
+from __future__ import annotations
+
 import re
-from typing import Dict, Any
+from typing import Any, Optional
 
 
 class LogPattern:
@@ -15,7 +17,7 @@ class LogPattern:
     A log pattern attached to a log, holding also the line references
     """
 
-    def __init__(self, name, pattern_data: Dict[str, Any]) -> None:
+    def __init__(self, name: str, pattern_data: dict[str, Any]) -> None:
         # Required attributes
         self.name = name
         self.raw_pattern = pattern_data["pattern"]
@@ -25,28 +27,18 @@ class LogPattern:
         self.property = pattern_data["property"]
         self.style = pattern_data["style"]
         self.visible = pattern_data["visible"]
-        # Generated attributes
-        self.count = 0
-        self.lines = []
+        self.modified = False
 
-    def search(self, line, line_num):
+    def search(self, line: str) -> Optional[re.Match]:
         """
-        Search the pattern as regex, store the number, return match
+        Search the pattern as regex, return match
         """
         match = self.pattern.search(line)
-        if match:
-            self.lines.append(line_num)
         return match
 
-    def has_line(self, line_num):
+    def get_data(self) -> dict[str, Any]:
         """
-        Check that line is in the found and stored lines
-        """
-        return line_num in self.lines
-
-    def get_data(self):
-        """
-        Build back a dict to copy data
+        Build back a dict of the pattern details
         """
         pattern_data = {
             "pattern": self.raw_pattern,
@@ -56,17 +48,19 @@ class LogPattern:
             "style": self.style,
             "visible": self.visible,
         }
-        return self.name, pattern_data
+        return pattern_data
 
-    def name_and_num(self):
-        """
-        Return a sting with name and found number to display
-        """
-        return f"{self.name} : {len(self.lines)}"
 
-    def get_clean_copy(self):
-        """
-        Create a copy of self without the line data
-        """
-        name, pattern_data = self.get_data()
-        return LogPattern(name, pattern_data)
+def create_empty_pattern() -> LogPattern:
+    """
+    Create an empty pattern object that can be filled later
+    """
+    pattern_data = {
+        "pattern": "",
+        "block_start": False,
+        "needed": False,
+        "property": "",
+        "style": [],
+        "visible": True,
+    }
+    return LogPattern("", pattern_data)
