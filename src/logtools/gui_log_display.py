@@ -14,20 +14,20 @@ from wx import stc
 from .log_block import LogBlock
 
 
+def translate_style(style_in: str) -> str:
+    """
+    Change the given style to the STC format
+    """
+    if style_in in ("bold", "italic", "underline"):
+        return style_in
+    return f"fore:#{style_in}"  # color
+
+
 class LogDisplay(stc.StyledTextCtrl):
 
     """
     The log display that is in the tabbed pages of the GUI
     """
-
-    styles = {
-        "bold": "bold",
-        "italic": "italic",
-        "underline": "underline",
-        "red": "fore:#FF0000",
-        "green": "fore:#00FF00",
-        "blue": "fore:#0000FF",
-    }
 
     def __init__(self, parent: Any, log_block: LogBlock) -> None:
         super().__init__(parent, -1)
@@ -50,7 +50,7 @@ class LogDisplay(stc.StyledTextCtrl):
         """
         self.StyleClearAll()
         for i, pattern in enumerate(self.log_block.patterns):
-            p_style_list = [self.base_style] + [self.styles[p] for p in pattern.style]
+            p_style_list = [self.base_style] + [translate_style(p) for p in pattern.style]
             p_style = ",".join(p_style_list)
             self.StyleSetSpec(i + 1, p_style)
 

@@ -11,8 +11,19 @@ from typing import Any
 
 import wx
 import wx.lib.sized_controls as sc
+import wx.lib.colourselect as csel
 
 from .log_pattern import LogPattern
+
+
+def color_to_wx(color: str) -> Any:
+    """
+    Translate color from the hex representation to the wx representation
+    """
+    r = int(color[0:2], 16)
+    g = int(color[2:4], 16)
+    b = int(color[4:6], 16)
+    return wx.Colour(r, g, b)
 
 
 class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
@@ -33,7 +44,7 @@ class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
         self.p_name.SetSizerProps(expand=True)
 
         wx.StaticText(pane, -1, "Pattern:")
-        self.p_pattern = wx.TextCtrl(pane, -1, pattern.raw_pattern)
+        self.p_pattern = wx.TextCtrl(pane, -1, pattern.raw_pattern, size=(300, -1))
         self.p_pattern.SetSizerProps(expand=True)
 
         wx.StaticText(pane, -1, "Block start:")
@@ -66,9 +77,9 @@ class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
         wx.StaticText(pane, -1, "Color:")
         colors = [s for s in pattern.style if s not in ("bold", "italic", "underline")]
         assert len(colors) <= 1
-        color = "" if not colors else colors[0]
-        self.p_s_color = wx.TextCtrl(pane, -1, color)
-        self.p_s_color.SetSizerProps(expand=True)
+        self.color = "000000" if not colors else colors[0]
+        self.p_s_color = csel.ColourSelect(pane, -1, "Choose...", color_to_wx(self.color))
+        self.p_s_color.Bind(csel.EVT_COLOURSELECT, self.on_select_color)
 
         wx.StaticText(pane, -1, "Visible:")
         self.p_visible = wx.CheckBox(pane, -1)
@@ -78,6 +89,14 @@ class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
         self.SetButtonSizer(self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL))
 
         self.Fit()
+
+    def on_select_color(self, event: Any) -> None:
+        """
+        Handle color selection
+        """
+        c = event.GetValue()
+        self.color = c.GetAsString(wx.C2S_HTML_SYNTAX)[1:]
+        event.Skip()
 
     def get_pattern(self) -> LogPattern:
         """
@@ -100,8 +119,8 @@ class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
             pattern_data["style"].append("italic")
         if self.p_s_under.GetValue():
             pattern_data["style"].append("underline")
-        if color := self.p_s_color.GetValue():
-            pattern_data["style"].append(color)
+        if self.color != "000000":
+            pattern_data["style"].append(self.color)
         pattern = LogPattern(pattern_name, pattern_data)
         pattern.modified = True
         return pattern

@@ -5,7 +5,7 @@ App start:
   property: \1
   style:
   - bold
-  - green
+  - 00FF00
   visible: yes
 App end:
   pattern: \[FinalizeApplication\] Application stop
@@ -14,7 +14,7 @@ App end:
   property:
   style:
   - bold
-  - green
+  - 00FF00
   visible: yes
 Process starts:
   pattern: Process starts
@@ -22,8 +22,7 @@ Process starts:
   needed: no
   property:
   style:
-  - bold
-  - blue
+  - 0000FF
   visible: yes
 Process ends:
   pattern: Process ends
@@ -32,7 +31,7 @@ Process ends:
   property:
   style:
   - bold
-  - blue
+  - 0000FF
   visible: yes
 ERROR log:
   pattern: ERROR
@@ -40,6 +39,6 @@ ERROR log:
   needed: no
   property:
   style:
-  - bold
-  - red
+  - italic
+  - FF0000
   visible: yes

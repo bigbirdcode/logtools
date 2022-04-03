@@ -16,14 +16,14 @@ from .gui_pattern_edit import PatternEditDialog
 from .log_pattern import create_empty_pattern
 
 
-class SearchPanel(wx.Panel):
+class SearchPanel(wx.ScrolledWindow):
 
     """
     Panel that will show the search patterns to quickly reach them
     """
 
     def __init__(self, parent: Any, app_data: LogData) -> None:
-        super().__init__(parent, -1)
+        super().__init__(parent, -1, style=wx.VSCROLL | wx.ALWAYS_SHOW_SB)
         self.app_data = app_data
         self.texts = []
 
@@ -39,7 +39,9 @@ class SearchPanel(wx.Panel):
 
         self.update()
         self.SetSizer(self.sizer)
-        self.Fit()
+        self.SetVirtualSize(self.sizer.GetMinSize())
+        self.SetScrollRate(0, 20)
+        self.FitInside()
 
     def create_pattern_row(self, num_name: str, name: str) -> Any:
         """
@@ -54,15 +56,14 @@ class SearchPanel(wx.Panel):
             size=(200, -1),
             name=num_name,
         )
+        text.SetMinSize((20, -1))
+        text.Bind(wx.EVT_LEFT_DOWN, self.on_click_edit)
         self.texts.append(text)
-        btn_edit = wx.Button(self, -1, "e", size=(25, 25), name="e" + num_name)
         btn_prev = wx.Button(self, -1, "<", size=(25, 25), name="<" + num_name)
         btn_next = wx.Button(self, -1, ">", size=(25, 25), name=">" + num_name)
-        self.Bind(wx.EVT_BUTTON, self.on_click_edit, btn_edit)
         self.Bind(wx.EVT_BUTTON, self.on_click_search, btn_prev)
         self.Bind(wx.EVT_BUTTON, self.on_click_search, btn_next)
         sub_sizer.Add(text, 1, wx.EXPAND)
-        sub_sizer.Add(btn_edit, 0, wx.CENTER)
         sub_sizer.Add(btn_prev, 0, wx.CENTER)
         sub_sizer.Add(btn_next, 0, wx.CENTER)
         return sub_sizer
@@ -92,7 +93,7 @@ class SearchPanel(wx.Panel):
         Handle pattern edit clicks
         """
         obj_name = event.GetEventObject().GetName()
-        pattern_num = int(obj_name[1:])
+        pattern_num = int(obj_name)
         new_pattern = len(self.app_data.patterns) == pattern_num
         if new_pattern:
             pattern = create_empty_pattern()
@@ -107,7 +108,8 @@ class SearchPanel(wx.Panel):
                 self.app_data.patterns.append(pattern)
                 sub_sizer = self.create_pattern_row(str(len(self.app_data.patterns)), "<add new>")
                 self.sizer.Add(sub_sizer, 0, wx.EXPAND)
-                self.Fit()
+                self.SetVirtualSize(self.sizer.GetMinSize())
+                self.FitInside()
             else:
                 self.app_data.patterns[pattern_num] = pattern
             self.GetParent().log_panel.update()

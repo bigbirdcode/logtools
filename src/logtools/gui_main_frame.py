@@ -57,9 +57,12 @@ class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         self.log_panel = LogDisplays(self, self.app_data)
 
         # add the panes to the manager
-        self._mgr.AddPane(self.search_panel, aui.AuiPaneInfo().Left().Caption("Search Terms"))
         self._mgr.AddPane(
-            self.log_prop, aui.AuiPaneInfo().Left().Caption("Selected Panel Properties")
+            self.search_panel, aui.AuiPaneInfo().Left().Caption("Search Terms").CloseButton(False)
+        )
+        self._mgr.AddPane(
+            self.log_prop,
+            aui.AuiPaneInfo().Left().Caption("Selected Panel Properties").CloseButton(False),
         )
         self._mgr.AddPane(self.log_panel, aui.AuiPaneInfo().CenterPane())
 

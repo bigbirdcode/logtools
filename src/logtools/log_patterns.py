@@ -26,7 +26,7 @@ SCHEMA = sy.MapPattern(
             "block_start": sy.Bool(),  # indication of a new bog block
             "needed": sy.Bool(),  # when missing consider as crash
             "property": sy.Str(),  # extract value from the regexp
-            "style": sy.Seq(sy.Str()),  # bold, italic, underline and color
+            "style": sy.Seq(sy.Regex(r"bold|italic|underline|[0-9A-F]{6}")),  # style and color
             "visible": sy.Bool(),  # display the line or not
         }
     ),
