@@ -15,6 +15,14 @@ from .log_patterns import LogPatterns
 
 TIMESTAMP_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}")
 
+LOG_LEVELS = {
+    "DEBUG": "D",
+    "INFO": "I",
+    "WARN": "W",
+    "ERROR": "E",
+    "FATAL": "F",
+}
+
 
 def extract_timestamp(line: str) -> str:
     """
@@ -34,15 +42,13 @@ def calculate_delta(start: str, end: str) -> str:
     """
     Calculate the time difference in hh:mm:ss format
     """
-    result = ""
     try:
         delta = datetime.datetime.fromisoformat(end) - datetime.datetime.fromisoformat(start)
     except ValueError:
-        return result
-    seconds = delta.total_seconds() % 60
-    minutes = int((delta.total_seconds() // 60) % 60)
-    hours = int((delta.total_seconds() // 3600))
-    return f"{hours:0>2d}:{minutes:0>2d}:{seconds:0>6.3f}"
+        return "unknown"
+    # str(delta) result something like '0:07:05.258000'
+    return str(delta)[:-3]
+
 
 class LogBlock:
 
@@ -57,6 +63,7 @@ class LogBlock:
         self.name = name if name else "unknown"
         self.has_needed = False
         self.start = ""
+        self.start_time = None
         self.end = ""
         self.duration = ""
         self.props = [f"Name: {self.name}"]
@@ -95,6 +102,10 @@ class LogBlock:
             return
         self.start = self.get_first_timestamp()
         self.end = self.get_last_timestamp()
+        try:
+            self.start_time = datetime.datetime.fromisoformat(self.start)
+        except ValueError:
+            pass
         self.duration = calculate_delta(self.start, self.end)
         self.search_patterns()
         self.has_needed = self.check_needed()
@@ -133,11 +144,37 @@ class LogBlock:
                     return False
         return True
 
+    def alter_line(self, line: str) -> str:
+        """
+        Change how lines are displayed.
+
+        At first change type to letter code and timestamp to delta
+        """
+        parts = line.split()
+        if len(parts) < 2:
+            return line
+        try:
+            parts[0] = LOG_LEVELS[parts[0]]
+        except KeyError:
+            return line
+        if self.start_time:
+            try:
+                delta = datetime.datetime.fromisoformat(parts[1]) - self.start_time
+            except ValueError:
+                return " ".join(parts)
+            # str(delta) result something like '0:07:05.258000'
+            parts[1] = str(delta)[:-3]
+        return " ".join(parts)
+
     def get_text(self) -> str:
         """
         Return all lines to display
         """
-        return "".join(self.lines)
+        # this change will have a button on the UI later
+        if True:
+            return "\n".join(self.alter_line(line) for line in self.lines)
+        else:
+            return "\n".join(self.lines)
 
     def get_props(self) -> str:
         """

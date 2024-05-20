@@ -23,9 +23,9 @@ class LogData:
         self.patterns = patterns
         self.log_blocks = LogBlocks(patterns)
         for log_file in sorted(log_files, key=lambda path: path.stat().st_mtime):
-            with log_file.open(encoding="latin2") as f:
-                for line in f:
-                    self.log_blocks.add_line(line)
+            txt = log_file.read_text(encoding="latin2")
+            for line in txt.splitlines():
+                self.log_blocks.add_line(line)
         self.log_blocks.finalize()
         self.log_block = self.log_blocks[0]
         self.yaml_modified = False
