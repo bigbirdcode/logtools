@@ -7,12 +7,13 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
+import datetime
 import re
 
 from .log_pattern import LogPattern
 from .log_patterns import LogPatterns
 
-TIMESTAMP_FORMAT = re.compile(r"\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\d")
+TIMESTAMP_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}")
 
 
 def extract_timestamp(line: str) -> str:
@@ -29,6 +30,20 @@ def extract_timestamp(line: str) -> str:
     return ""
 
 
+def calculate_delta(start: str, end: str) -> str:
+    """
+    Calculate the time difference in hh:mm:ss format
+    """
+    result = ""
+    try:
+        delta = datetime.datetime.fromisoformat(end) - datetime.datetime.fromisoformat(start)
+    except ValueError:
+        return result
+    seconds = delta.total_seconds() % 60
+    minutes = int((delta.total_seconds() // 60) % 60)
+    hours = int((delta.total_seconds() // 3600))
+    return f"{hours:0>2d}:{minutes:0>2d}:{seconds:0>6.3f}"
+
 class LogBlock:
 
     """
@@ -43,6 +58,7 @@ class LogBlock:
         self.has_needed = False
         self.start = ""
         self.end = ""
+        self.duration = ""
         self.props = [f"Name: {self.name}"]
         self.lines = []
         self.pattern_lines = {pattern.name: [] for pattern in self.patterns}
@@ -79,11 +95,13 @@ class LogBlock:
             return
         self.start = self.get_first_timestamp()
         self.end = self.get_last_timestamp()
+        self.duration = calculate_delta(self.start, self.end)
         self.search_patterns()
         self.has_needed = self.check_needed()
         suffix = "OK" if self.has_needed else "Crash"
         self.props.append(f"Start: {self.start}")
         self.props.append(f"End: {self.end}")
+        self.props.append(f"Duration: {self.duration}")
         self.props.append(f"Lines: {len(self.lines)}")
         self.props.append(f"Result: {suffix}")
         self.name = f"{self.num:0>2d} {self.name} {suffix}"

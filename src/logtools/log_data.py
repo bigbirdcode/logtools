@@ -22,7 +22,7 @@ class LogData:
     def __init__(self, patterns: LogPatterns, log_files: list[pathlib.Path]) -> None:
         self.patterns = patterns
         self.log_blocks = LogBlocks(patterns)
-        for log_file in log_files:
+        for log_file in sorted(log_files, key=lambda path: path.stat().st_mtime):
             with log_file.open(encoding="latin2") as f:
                 for line in f:
                     self.log_blocks.add_line(line)

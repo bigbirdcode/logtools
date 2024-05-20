@@ -34,6 +34,7 @@ class LogDisplay(stc.StyledTextCtrl):
         self.log_block = log_block
         self.SetMarginType(0, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(0, 50)
+        self.SetWrapMode(1)
         self.base_style = "size:10,face:Courier New"
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, self.base_style)
         self.create_pattern_styles()
@@ -49,20 +50,23 @@ class LogDisplay(stc.StyledTextCtrl):
         Styles are referenced by numbers, starting from 1
         """
         self.StyleClearAll()
-        for i, pattern in enumerate(self.log_block.patterns):
+        for i, pattern in enumerate(self.log_block.patterns, stc.STC_STYLE_LASTPREDEFINED + 1):
+            if i > stc.STC_STYLE_MAX:
+                raise ValueError("Too many patterns")
+            pattern.style_num = i
             p_style_list = [self.base_style] + [translate_style(p) for p in pattern.style]
             p_style = ",".join(p_style_list)
-            self.StyleSetSpec(i + 1, p_style)
+            self.StyleSetSpec(i, p_style)
 
     def apply_pattern_styles(self) -> None:
         """
         Apply the pattern style information to the log lines
         """
         self.ClearDocumentStyle()
-        for i, pattern in enumerate(self.log_block.patterns):
+        for pattern in self.log_block.patterns:
             for line in self.log_block.pattern_lines[pattern.name]:
                 self.StartStyling(self.PositionFromLine(line))
-                self.SetStyling(len(self.log_block.lines[line]), i + 1)
+                self.SetStyling(len(self.log_block.lines[line]), pattern.style_num)
 
     def update(self) -> None:
         """

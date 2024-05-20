@@ -28,6 +28,8 @@ class LogPattern:
         self.style = pattern_data["style"]
         self.visible = pattern_data["visible"]
         self.modified = False
+        # Will be assigned by the display
+        self.style_num = -1
 
     def search(self, line: str) -> Optional[re.Match]:
         """

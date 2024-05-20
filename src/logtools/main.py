@@ -47,7 +47,7 @@ FOLDER_HELP = """
 """
 
 
-def errormessage(msg: str) -> NoReturn:
+def error_message(msg: str) -> NoReturn:
     """
     Print out error messages either to the console or to a dialog box then exit
 
@@ -97,7 +97,7 @@ def parse_arguments() -> Any:
     finally:
         sys.stdout, sys.stderr = bkp_stdout, bkp_stderr
     if was_error:
-        errormessage(output.getvalue())
+        error_message(output.getvalue())
     return args
 
 
@@ -107,7 +107,7 @@ def check_logfiles(log_files: list[pathlib.Path]) -> None:
     """
     for log_file in log_files:
         if not log_file.is_file():
-            errormessage(f"{log_file} log file not found!")
+            error_message(f"{log_file} log file not found!")
 
 
 def read_patterns(args: Any) -> LogPatterns:
@@ -118,7 +118,7 @@ def read_patterns(args: Any) -> LogPatterns:
     if args.pattern_file:
         pattern_file = args.pattern_file
         if not pattern_file.is_file():
-            errormessage(f"{pattern_file} pattern file not found!")
+            error_message(f"{pattern_file} pattern file not found!")
     else:
         default_pattern_file = pattern_file
         if default_pattern_file.is_file():
@@ -128,12 +128,12 @@ def read_patterns(args: Any) -> LogPatterns:
         elif (pathlib.Path.home() / "Documents" / default_pattern_file).is_file():
             pattern_file = pathlib.Path.home() / "Documents" / default_pattern_file
         else:
-            errormessage("Pattern file not found!\n" + dedent(FOLDER_HELP))
+            error_message("Pattern file not found!\n" + dedent(FOLDER_HELP))
     log_patterns = LogPatterns(pattern_file)
     return log_patterns
 
 
-def main() -> None:
+def app_main() -> None:
     """
     Main function, starting point as usual
     """
@@ -147,6 +147,13 @@ def main() -> None:
     app.SetTopWindow(frame)
     frame.Show()
     app.MainLoop()
+
+
+def main() -> None:
+    try:
+        app_main()
+    except Exception as exc:
+        error_message(repr(exc))
 
 
 if __name__ == "__main__":
