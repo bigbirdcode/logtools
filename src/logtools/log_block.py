@@ -7,13 +7,10 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
-import datetime
-import re
+from _datetime import datetime
 
 from .log_pattern import LogPattern
 from .log_patterns import LogPatterns
-
-TIMESTAMP_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}")
 
 LOG_LEVELS = {
     "DEBUG": "D",
@@ -24,7 +21,7 @@ LOG_LEVELS = {
 }
 
 
-def extract_timestamp(line: str) -> str:
+def extract_datetime(line: str) -> datetime | None:
     """
     Try to get a timestamp from the line. Return empty string when not found.
     """
@@ -32,18 +29,19 @@ def extract_timestamp(line: str) -> str:
     try:
         time_stamp = parts[1]
     except IndexError:
-        return ""
-    if TIMESTAMP_FORMAT.match(time_stamp):
-        return time_stamp
-    return ""
+        return None
+    try:
+        return datetime.fromisoformat(time_stamp)
+    except ValueError:
+      return None
 
 
-def calculate_delta(start: str, end: str) -> str:
+def calculate_delta(start: datetime, end: datetime) -> str:
     """
     Calculate the time difference in hh:mm:ss format
     """
     try:
-        delta = datetime.datetime.fromisoformat(end) - datetime.datetime.fromisoformat(start)
+        delta = end - start
     except ValueError:
         return "unknown"
     # str(delta) result something like '0:07:05.258000'
@@ -62,9 +60,8 @@ class LogBlock:
         self.num = num
         self.name = name if name else "unknown"
         self.has_needed = False
-        self.start = ""
-        self.start_time = None
-        self.end = ""
+        self.start: datetime | None = None
+        self.end: datetime | None = None
         self.duration = ""
         self.props = [f"Name: {self.name}"]
         self.lines = []
@@ -76,23 +73,23 @@ class LogBlock:
         """
         self.lines.append(line)
 
-    def get_first_timestamp(self) -> str:
+    def get_first_datetime(self) -> datetime | None:
         """
-        Get the first valid timestamp from the log lines
+        Get the first valid datetime from the log lines
         """
         for line in self.lines:
-            if time_stamp := extract_timestamp(line):
-                return time_stamp
-        return ""
+            if d_t := extract_datetime(line):
+                return d_t
+        return None
 
-    def get_last_timestamp(self) -> str:
+    def get_last_datetime(self) -> datetime | None:
         """
-        Get the last valid timestamp from the log lines
+        Get the last valid datetime from the log lines
         """
         for line in reversed(self.lines):
-            if time_stamp := extract_timestamp(line):
-                return time_stamp
-        return ""
+            if d_t := extract_datetime(line):
+                return d_t
+        return None
 
     def finalize(self) -> None:
         """
@@ -100,12 +97,8 @@ class LogBlock:
         """
         if not self.lines:
             return
-        self.start = self.get_first_timestamp()
-        self.end = self.get_last_timestamp()
-        try:
-            self.start_time = datetime.datetime.fromisoformat(self.start)
-        except ValueError:
-            pass
+        self.start = self.get_first_datetime()
+        self.end = self.get_last_datetime()
         self.duration = calculate_delta(self.start, self.end)
         self.search_patterns()
         self.has_needed = self.check_needed()
@@ -157,9 +150,9 @@ class LogBlock:
             parts[0] = LOG_LEVELS[parts[0]]
         except KeyError:
             return line
-        if self.start_time:
+        if self.start is not None:
             try:
-                delta = datetime.datetime.fromisoformat(parts[1]) - self.start_time
+                delta = datetime.fromisoformat(parts[1]) - self.start
             except ValueError:
                 return " ".join(parts)
             # str(delta) result something like '0:07:05.258000'
