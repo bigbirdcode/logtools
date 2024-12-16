@@ -1,4 +1,5 @@
-"""LogTools Log viewer application
+"""
+LogTools Log viewer application
 
 By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
@@ -50,7 +51,8 @@ class LogDisplay(stc.StyledTextCtrl):
         self.StyleClearAll()
         for i, pattern in enumerate(self.log_block.patterns, stc.STC_STYLE_LASTPREDEFINED + 1):
             if i > stc.STC_STYLE_MAX:
-                raise ValueError("Too many patterns")
+                err_msg = "Too many patterns"
+                raise ValueError(err_msg)
             pattern.style_num = i
             p_style_list = [self.base_style] + [translate_style(p) for p in pattern.style]
             p_style = ",".join(p_style_list)

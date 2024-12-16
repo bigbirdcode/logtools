@@ -1,4 +1,5 @@
-"""LogTools Log viewer application
+"""
+LogTools Log viewer application
 
 By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
@@ -7,7 +8,7 @@ https://github.com/bigbirdcode/logtools
 from __future__ import annotations
 
 import re
-from typing import Any, Optional
+from typing import Any
 
 
 class LogPattern:
@@ -29,7 +30,7 @@ class LogPattern:
         # Will be assigned by the display
         self.style_num = -1
 
-    def search(self, line: str) -> Optional[re.Match]:
+    def search(self, line: str) -> re.Match | None:
         """
         Search the pattern as regex, return match
         """

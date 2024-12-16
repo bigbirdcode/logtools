@@ -1,4 +1,5 @@
-"""LogTools Log viewer application
+"""
+LogTools Log viewer application
 
 By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
@@ -70,8 +71,7 @@ def parse_arguments() -> Any:
     """
     Parse command line arguments and checks for errors
 
-    Notes:
-    argparse do not handle well non-CLI usage
+    Note: argparse do not handle well non-CLI usage
     the newly added exit_on_error=False parameter is buggy!
     it can also throw various types of exceptions...
     the only option is to redirect output and capture SystemExit
@@ -150,6 +150,9 @@ def app_main() -> None:
 
 
 def main() -> None:
+    """
+    The usual main function
+    """
     try:
         app_main()
     except Exception as exc:

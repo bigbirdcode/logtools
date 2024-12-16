@@ -1,8 +1,11 @@
-"""LogTools Log viewer application
+"""
+LogTools Log viewer application
 
 By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
+
+# ruff: noqa: D103 -  Missing docstring in public function
 
 # WARNING! Test is obsolete, need update!
 
@@ -12,9 +15,6 @@ import pytest
 from strictyaml import YAMLValidationError
 
 from logtools.log_patterns import LogPatterns, parse_yaml
-
-
-# pragma pylint: disable=missing-docstring,unused-argument,redefined-outer-name
 
 
 TEST_PATTERNS_YML = pathlib.Path("tests/test_patterns.yml")

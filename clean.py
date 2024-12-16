@@ -14,5 +14,5 @@ dirs_to_remove = [
 ]
 
 for dir_to_remove in dirs_to_remove:
-    for p in pathlib.Path(".").glob(dir_to_remove):
+    for p in pathlib.Path().glob(dir_to_remove):
         shutil.rmtree(p)
