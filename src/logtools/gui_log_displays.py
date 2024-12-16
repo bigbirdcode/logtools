@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from typing import Any
@@ -12,12 +11,11 @@ from typing import Any
 import wx
 from wx.lib.agw import aui
 
-from .log_data import LogData
 from .gui_log_display import LogDisplay
+from .log_data import LogData
 
 
 class LogDisplays(wx.Panel):
-
     """
     Tabbed panel to display the log displays
     """

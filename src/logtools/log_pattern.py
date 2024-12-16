@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 import re
@@ -12,7 +11,6 @@ from typing import Any, Optional
 
 
 class LogPattern:
-
     """
     A log pattern attached to a log, holding also the line references
     """

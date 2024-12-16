@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 import pathlib
@@ -50,7 +49,6 @@ def parse_yaml(text: str) -> list[LogPattern]:
 
 
 class LogPatterns(UserList):
-
     """
     Class to hold a list of log pattern objects for a log
     """

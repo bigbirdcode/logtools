@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from typing import Any
@@ -12,13 +11,12 @@ from typing import Any
 import wx
 from wx.lib.agw import aui
 
-from .log_data import LogData
 from .gui_log_displays import LogDisplays
 from .gui_search_panel import SearchPanel
+from .log_data import LogData
 
 
 class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
-
     """
     Frame with AUI manager to manage tabs easily
     """

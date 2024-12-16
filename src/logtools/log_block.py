@@ -4,13 +4,13 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from _datetime import datetime
 
 from .log_pattern import LogPattern
 from .log_patterns import LogPatterns
+
 
 LOG_LEVELS = {
     "DEBUG": "D",
@@ -33,7 +33,7 @@ def extract_datetime(line: str) -> datetime | None:
     try:
         return datetime.fromisoformat(time_stamp)
     except ValueError:
-      return None
+        return None
 
 
 def calculate_delta(start: datetime, end: datetime) -> str:
@@ -49,7 +49,6 @@ def calculate_delta(start: datetime, end: datetime) -> str:
 
 
 class LogBlock:
-
     """
     A log group, i.e. lines of log that belong to an execution
     These groups are separated by lines matched by starting patterns

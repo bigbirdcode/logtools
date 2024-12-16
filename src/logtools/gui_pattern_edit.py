@@ -4,14 +4,13 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from typing import Any
 
 import wx
-import wx.lib.sized_controls as sc
 import wx.lib.colourselect as csel
+import wx.lib.sized_controls as sc
 
 from .log_pattern import LogPattern
 
@@ -27,11 +26,9 @@ def color_to_wx(color: str) -> Any:
 
 
 class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
-
     """Dialog to edit a pattern"""
 
     def __init__(self, parent: Any, pattern: LogPattern) -> None:
-
         sc.SizedDialog.__init__(
             self, parent, -1, "Edit Pattern", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
         )

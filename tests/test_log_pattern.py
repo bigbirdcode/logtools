@@ -7,7 +7,6 @@ https://github.com/bigbirdcode/logtools
 
 # WARNING! Test is obsolete, need update!
 
-
 import copy
 import re
 

@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 import argparse
@@ -16,6 +15,7 @@ from textwrap import dedent
 from typing import Any, NoReturn
 
 import wx
+
 
 # Python has 2 types of calls:
 #  - direct call, like: python main.py

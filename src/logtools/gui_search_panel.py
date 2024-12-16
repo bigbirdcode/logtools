@@ -4,20 +4,18 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from typing import Any
 
 import wx
 
-from .log_data import LogData
 from .gui_pattern_edit import PatternEditDialog
+from .log_data import LogData
 from .log_pattern import create_empty_pattern
 
 
 class SearchPanel(wx.ScrolledWindow):
-
     """
     Panel that will show the search patterns to quickly reach them
     """

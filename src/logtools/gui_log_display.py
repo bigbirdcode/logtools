@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from typing import Any
@@ -24,7 +23,6 @@ def translate_style(style_in: str) -> str:
 
 
 class LogDisplay(stc.StyledTextCtrl):
-
     """
     The log display that is in the tabbed pages of the GUI
     """

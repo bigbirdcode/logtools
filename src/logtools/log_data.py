@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 import pathlib
@@ -14,7 +13,6 @@ from .log_patterns import LogPatterns
 
 
 class LogData:
-
     """
     Parent class for the data, components will reach the data through this
     """
