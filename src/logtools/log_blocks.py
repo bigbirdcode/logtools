@@ -4,7 +4,6 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/logtools
 """
 
-
 from __future__ import annotations
 
 from collections import UserList
@@ -14,7 +13,6 @@ from .log_patterns import LogPatterns
 
 
 class LogBlocks(UserList):
-
     """
     Collection of log blocks
     """
@@ -37,7 +35,7 @@ class LogBlocks(UserList):
         """
         for pattern in self.patterns.get_block_starts():
             if match := pattern.search(line):
-                self.new_block(match[1])
+                self.new_block(match[int(pattern.property)])
             break
         self.act.add(line)
 
