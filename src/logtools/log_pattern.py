@@ -30,7 +30,7 @@ class LogPattern:
         # Will be assigned by the display
         self.style_num = -1
 
-    def search(self, line: str) -> re.Match | None:
+    def search(self, line: str) -> re.Match[str] | None:
         """
         Search the pattern as regex, return match
         """

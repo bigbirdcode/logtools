@@ -26,7 +26,8 @@ def color_to_wx(color: str) -> Any:
     return wx.Colour(r, g, b)
 
 
-class PatternEditDialog(sc.SizedDialog):  # pylint: disable=too-many-ancestors
+# mypy: allow-subclassing-any
+class PatternEditDialog(sc.SizedDialog):
     """Dialog to edit a pattern"""
 
     def __init__(self, parent: Any, pattern: LogPattern) -> None:

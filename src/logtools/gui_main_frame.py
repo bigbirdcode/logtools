@@ -17,7 +17,8 @@ from logtools.gui_search_panel import SearchPanel
 from logtools.log_data import LogData
 
 
-class MainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
+# mypy: allow-subclassing-any
+class MainFrame(wx.Frame):
     """
     Frame with AUI manager to manage tabs easily
     """

@@ -141,3 +141,10 @@ allow-multiline = false
 
 [tool.mypy]
 strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "strictyaml",
+    "wx.*",
+]
+ignore_missing_imports = true

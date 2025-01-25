@@ -23,6 +23,7 @@ def translate_style(style_in: str) -> str:
     return f"fore:#{style_in}"  # color
 
 
+# mypy: allow-subclassing-any
 class LogDisplay(stc.StyledTextCtrl):
     """
     The log display that is in the tabbed pages of the GUI
@@ -78,7 +79,7 @@ class LogDisplay(stc.StyledTextCtrl):
         self.create_pattern_styles()
         self.apply_pattern_styles()
 
-    def find_line(self, direction: str, pattern_num):
+    def find_line(self, direction: str, pattern_num: int) -> None:
         """
         Find the previous or next line
         """

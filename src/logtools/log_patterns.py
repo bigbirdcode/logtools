@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import pathlib
 from collections import UserList
+from collections.abc import Iterator
 
 import strictyaml as sy
 
@@ -49,7 +50,7 @@ def parse_yaml(text: str) -> list[LogPattern]:
     return result
 
 
-class LogPatterns(UserList):
+class LogPatterns(UserList[LogPattern]):
     """
     Class to hold a list of log pattern objects for a log
     """
@@ -67,7 +68,7 @@ class LogPatterns(UserList):
         result = {pattern.name: pattern.get_data() for pattern in self.data}
         self.file_path.write_text(sy.as_document(result, SCHEMA).as_yaml())
 
-    def get_block_starts(self):
+    def get_block_starts(self) -> Iterator[LogPattern]:
         """
         Get the patterns that can start a new log group
         """
@@ -75,7 +76,7 @@ class LogPatterns(UserList):
             if pattern.block_start:
                 yield pattern
 
-    def get_modified(self):
+    def get_modified(self) -> Iterator[LogPattern]:
         """
         Get all the patterns
         """
@@ -83,7 +84,7 @@ class LogPatterns(UserList):
             if pattern.modified:
                 yield pattern
 
-    def get_names(self):
+    def get_names(self) -> Iterator[str]:
         """
         Get all the pattern names
         """

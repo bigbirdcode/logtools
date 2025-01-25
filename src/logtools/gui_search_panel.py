@@ -16,6 +16,7 @@ from logtools.log_data import LogData
 from logtools.log_pattern import create_empty_pattern
 
 
+# mypy: allow-subclassing-any
 class SearchPanel(wx.ScrolledWindow):
     """
     Panel that will show the search patterns to quickly reach them
@@ -24,7 +25,7 @@ class SearchPanel(wx.ScrolledWindow):
     def __init__(self, parent: Any, app_data: LogData) -> None:
         super().__init__(parent, -1, style=wx.VSCROLL | wx.ALWAYS_SHOW_SB)
         self.app_data = app_data
-        self.texts = []
+        self.texts: list[wx.TextCtrl] = []
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 

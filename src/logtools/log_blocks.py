@@ -13,7 +13,7 @@ from logtools.log_block import LogBlock
 from logtools.log_patterns import LogPatterns
 
 
-class LogBlocks(UserList):
+class LogBlocks(UserList[LogBlock]):
     """
     Collection of log blocks
     """

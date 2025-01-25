@@ -45,7 +45,7 @@ def error_message(msg: str) -> NoReturn:
         dlg.Destroy()
         app.Destroy()
     else:
-        print(msg)
+        print(msg)  # noqa: T201 - print ok here
     sys.exit(1)
 
 
@@ -74,7 +74,7 @@ def parse_arguments() -> Any:
     sys.stdout, sys.stderr = output, output
     try:
         args = parser.parse_args()
-    except (SystemExit, Exception):  # pylint: disable=broad-except
+    except (SystemExit, Exception):
         was_error = True
     finally:
         sys.stdout, sys.stderr = bkp_stdout, bkp_stderr
@@ -137,7 +137,7 @@ def main() -> None:
     """
     try:
         app_main()
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - blind exception
         error_message(repr(exc))
 
 

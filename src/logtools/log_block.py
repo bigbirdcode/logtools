@@ -7,7 +7,7 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
-from _datetime import datetime
+from datetime import datetime
 
 from logtools.log_pattern import LogPattern
 from logtools.log_patterns import LogPatterns
@@ -37,10 +37,12 @@ def extract_datetime(line: str) -> datetime | None:
         return None
 
 
-def calculate_delta(start: datetime, end: datetime) -> str:
+def calculate_delta(start: datetime | None, end: datetime | None) -> str:
     """
     Calculate the time difference in hh:mm:ss format
     """
+    if start is None or end is None:
+        return "unknown"
     try:
         delta = end - start
     except ValueError:
@@ -64,8 +66,8 @@ class LogBlock:
         self.end: datetime | None = None
         self.duration = ""
         self.props = [f"Name: {self.name}"]
-        self.lines = []
-        self.pattern_lines = {pattern.name: [] for pattern in self.patterns}
+        self.lines: list[str] = []
+        self.pattern_lines: dict[str, list[int]] = {pattern.name: [] for pattern in self.patterns}
 
     def add(self, line: str) -> None:
         """

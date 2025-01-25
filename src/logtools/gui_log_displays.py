@@ -16,6 +16,7 @@ from logtools.gui_log_display import LogDisplay
 from logtools.log_data import LogData
 
 
+# mypy: allow-subclassing-any
 class LogDisplays(wx.Panel):
     """
     Tabbed panel to display the log displays
