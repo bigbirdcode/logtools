@@ -25,6 +25,15 @@ the log have.
 Finally I would like to see some statistics about my logs and
 patterns.
 
+Usage
+-----
+
+Create a Python virtual environment with the requirements. After
+activating the virtual environment call the logtools with the
+provided sample log and patterns::
+
+    logtools -p patterns.yml sample.log
+
 Status
 ------
 
