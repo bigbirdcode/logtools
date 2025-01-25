@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pathlib
 
-from .log_blocks import LogBlocks
-from .log_patterns import LogPatterns
+from logtools.log_blocks import LogBlocks
+from logtools.log_patterns import LogPatterns
 
 
 class LogData:

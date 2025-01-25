@@ -13,7 +13,7 @@ import wx
 import wx.lib.colourselect as csel
 import wx.lib.sized_controls as sc
 
-from .log_pattern import LogPattern
+from logtools.log_pattern import LogPattern
 
 
 def color_to_wx(color: str) -> Any:

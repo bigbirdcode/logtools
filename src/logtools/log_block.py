@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from _datetime import datetime
 
-from .log_pattern import LogPattern
-from .log_patterns import LogPatterns
+from logtools.log_pattern import LogPattern
+from logtools.log_patterns import LogPatterns
 
 
 LOG_LEVELS = {

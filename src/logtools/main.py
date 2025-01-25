@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import io
-import os
 import pathlib
 import sys
 from textwrap import dedent
@@ -17,26 +16,9 @@ from typing import Any, NoReturn
 
 import wx
 
-
-# Python has 2 types of calls:
-#  - direct call, like: python main.py
-#  - package call, like: python -m cliptools
-# Below quite ugly code will handle these
-if __name__ == "__main__" and __package__ is None:
-    # This was a direct call
-    # package information is missing, and relative imports will fail
-    # this hack imitates the package behavior and add outer dir to the path
-    __package__ = "logtools"  # pylint: disable=redefined-builtin
-    logtools_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if logtools_dir not in sys.path:
-        sys.path.insert(0, logtools_dir)
-    del logtools_dir  # clean up global name space
-
-# Now relative import is ok
-# pylint: disable=wrong-import-position
-from .gui_main_frame import MainFrame
-from .log_data import LogData
-from .log_patterns import LogPatterns
+from logtools.gui_main_frame import MainFrame
+from logtools.log_data import LogData
+from logtools.log_patterns import LogPatterns
 
 
 DEFAULT_PATTERNS_YML = "logtools_default_patterns.yml"

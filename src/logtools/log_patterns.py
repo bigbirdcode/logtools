@@ -12,7 +12,7 @@ from collections import UserList
 
 import strictyaml as sy
 
-from .log_pattern import LogPattern
+from logtools.log_pattern import LogPattern
 
 
 # yaml patterns are read according to this schema

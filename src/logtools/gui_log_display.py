@@ -11,7 +11,7 @@ from typing import Any
 
 from wx import stc
 
-from .log_block import LogBlock
+from logtools.log_block import LogBlock
 
 
 def translate_style(style_in: str) -> str:

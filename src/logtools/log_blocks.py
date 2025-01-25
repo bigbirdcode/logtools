@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from collections import UserList
 
-from .log_block import LogBlock
-from .log_patterns import LogPatterns
+from logtools.log_block import LogBlock
+from logtools.log_patterns import LogPatterns
 
 
 class LogBlocks(UserList):

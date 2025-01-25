@@ -11,9 +11,9 @@ from typing import Any
 
 import wx
 
-from .gui_pattern_edit import PatternEditDialog
-from .log_data import LogData
-from .log_pattern import create_empty_pattern
+from logtools.gui_pattern_edit import PatternEditDialog
+from logtools.log_data import LogData
+from logtools.log_pattern import create_empty_pattern
 
 
 class SearchPanel(wx.ScrolledWindow):

@@ -12,8 +12,8 @@ from typing import Any
 import wx
 from wx.lib.agw import aui
 
-from .gui_log_display import LogDisplay
-from .log_data import LogData
+from logtools.gui_log_display import LogDisplay
+from logtools.log_data import LogData
 
 
 class LogDisplays(wx.Panel):
