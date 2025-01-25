@@ -7,8 +7,6 @@ https://github.com/bigbirdcode/logtools
 
 # ruff: noqa: D103 -  Missing docstring in public function
 
-# WARNING! Test is obsolete, need update!
-
 import pathlib
 
 import pytest
@@ -20,16 +18,16 @@ from logtools.log_patterns import LogPatterns, parse_yaml
 TEST_PATTERNS_YML = pathlib.Path("tests/test_patterns.yml")
 
 
-def test_parse_yml_ok():
+def test_parse_yml_ok() -> None:
     yml = """
-    - App start:
+    App start:
         pattern: \\[InitializeApplication\\] Initialized Application ([0-9.]+)
         block_start: True
         needed: False
-        property: \\1
+        property: 1
         style:
           - bold
-          - green
+          - 00FF00
         visible: True
     """
     result = parse_yaml(yml)
@@ -37,60 +35,52 @@ def test_parse_yml_ok():
     assert result[0].name == "App start"
 
 
-def test_parse_yml_wrong_bool():
+def test_parse_yml_wrong_bool() -> None:
     yml = """
-    - App start:
+    App start:
         pattern: \\[InitializeApplication\\] Initialized Application ([0-9.]+)
         block_start: NonBool
         needed: False
         property: \\1
         style:
           - bold
-          - green
+          - 00FF00
         visible: True
     """
     with pytest.raises(YAMLValidationError):
         _ = parse_yaml(yml)
 
 
-def test_parse_yml_wrong_missing():
+def test_parse_yml_wrong_missing() -> None:
     yml = """
-    - App start:
+    App start:
         pattern: \\[InitializeApplication\\] Initialized Application ([0-9.]+)
         needed: False
         property: \\1
         style:
           - bold
-          - green
+          - 00FF00
         visible: True
     """
     with pytest.raises(YAMLValidationError):
         _ = parse_yaml(yml)
 
 
-def test_read_yml():
+def test_read_yml() -> None:
     lps = LogPatterns(TEST_PATTERNS_YML)
     assert list(lps.get_names()) == ["App start", "App end"]
 
 
-def test_get_block_starts():
+def test_get_block_starts() -> None:
     lps = LogPatterns(TEST_PATTERNS_YML)
     patterns = list(lps.get_block_starts())
     assert len(patterns) == 1
     assert patterns[0].name == "App start"
 
 
-def test_get_patterns():
+def test_get_names() -> None:
     lps = LogPatterns(TEST_PATTERNS_YML)
-    patterns = list(lps.get_patterns())
-    assert len(patterns) == 2
-    assert patterns[0].name == "App start"
-    assert patterns[1].name == "App end"
-
-
-def test_create_from_existing():
-    lps = LogPatterns(TEST_PATTERNS_YML)
-    lps.patterns[0].count = 5
-    lps2 = lps.get_clean_copy()
-    assert list(lps2.get_names()) == ["App start", "App end"]
-    assert lps2.patterns[0].count == 0
+    names = list(lps.get_names())
+    assert len(names) == 2
+    assert names[0] == "App start"
+    assert names[1] == "App end"

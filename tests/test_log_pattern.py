@@ -7,10 +7,9 @@ https://github.com/bigbirdcode/logtools
 
 # ruff: noqa: D103 -  Missing docstring in public function
 
-# WARNING! Test is obsolete, need update!
-
 import copy
 import re
+from typing import Any
 
 import pytest
 
@@ -27,12 +26,15 @@ GOOD_PATTERN = {
 }
 
 
+pattern_fixture = dict[str, Any]
+
+
 @pytest.fixture
-def pattern():
+def pattern() -> pattern_fixture:
     return copy.deepcopy(GOOD_PATTERN)
 
 
-def test_good_pattern(pattern):
+def test_good_pattern(pattern: pattern_fixture) -> None:
     lpat = LogPattern("My Name", pattern)
     assert lpat.name == "My Name"
     assert isinstance(lpat.pattern, re.Pattern)
@@ -41,34 +43,23 @@ def test_good_pattern(pattern):
     assert lpat.property == "\\1"
     assert lpat.style == ["bold", "green"]
     assert lpat.visible is True
-    assert lpat.count == 0
-    assert lpat.lines == []
+    assert lpat.modified is False
+    assert lpat.style_num == -1
 
 
-def test_missing_pattern(pattern):
+def test_missing_pattern(pattern: pattern_fixture) -> None:
     del pattern["pattern"]
     with pytest.raises(KeyError):
         _ = LogPattern("My Name", pattern)
 
 
-def test_get_data(pattern):
+def test_get_data(pattern: pattern_fixture) -> None:
     lpat = LogPattern("My Name", pattern)
-    name, data = lpat.get_data()
-    assert name == "My Name"
+    data = lpat.get_data()
     assert data == pattern
 
 
-def test_get_clean_copy(pattern):
+def test_search(pattern: pattern_fixture) -> None:
     lpat = LogPattern("My Name", pattern)
-    lpat.count = 5
-    lpat2 = lpat.get_clean_copy()
-    assert lpat2.name == lpat.name
-    assert lpat2.count == 0
-
-
-def test_search(pattern):
-    lpat = LogPattern("My Name", pattern)
-    assert lpat.search("x My Pattern x", 1)
-    assert not lpat.search("x My xx Pattern x", 2)
-    assert lpat.has_line(1)
-    assert not lpat.has_line(2)
+    assert lpat.search("x My Pattern x")
+    assert not lpat.search("x My xx Pattern x")
