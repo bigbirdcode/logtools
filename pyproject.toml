@@ -2,9 +2,9 @@
 name = "logtools"
 description = "Log processing tool."
 readme = "README.md"
-version = "1.0"  # We don't use this
+version = "0.4"
 authors = [
-    {name = "Peter Varhegyi", email = "peter.varhegyi@gmail.com"},
+    {name = "BigBirdCode"},
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -17,7 +17,20 @@ dev = [
     "mypy",
     "ruff",
     "pytest",
+    "setuptools",
 ]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.gui-scripts]
+logtools = "logtools.main:main"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 
 [tool.ruff]
 line-length = 98
@@ -128,9 +141,3 @@ allow-multiline = false
 
 [tool.mypy]
 strict = true
-
-[[tool.mypy.overrides]]
-module = [
-    "behave",
-]
-ignore_missing_imports = true
