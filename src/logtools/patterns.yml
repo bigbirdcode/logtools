@@ -2,7 +2,7 @@ App start:
   pattern: \[InitializeApplication\] Initialized Application ([0-9.]+)
   block_start: yes
   needed: no
-  property: \1
+  property: 1
   style:
   - bold
   - 00FF00
