@@ -10,10 +10,12 @@ from __future__ import annotations
 import argparse
 import io
 import pathlib
+import shutil
 import sys
 from textwrap import dedent
 from typing import Any, NoReturn
 
+import platformdirs
 import wx
 
 from logtools.gui_main_frame import MainFrame
@@ -21,12 +23,11 @@ from logtools.log_data import LogData
 from logtools.log_patterns import LogPatterns
 
 
-DEFAULT_PATTERNS_YML = "logtools_default_patterns.yml"
-
 FOLDER_HELP = """
-    If pattern_file is not provided then logtools will try to read the file
-    'logtools_default_patterns.yml' from the following possible locations:
-    1. actual folder 2. user's home folder 3. user's Documents folder
+    Patterns are Strict Yaml format files in the user folder with .YML extension.
+    Providing the base name is enough for the selection. If pattern is not provided
+    then LogTools will try to select the right pattern based on some heuristics,
+    or just use the default one.
 """
 
 
@@ -49,6 +50,30 @@ def error_message(msg: str) -> NoReturn:
     sys.exit(1)
 
 
+def get_or_create_user_folder() -> pathlib.Path:
+    """
+    Return the user configuration folder or create one when not found.
+
+    If the folder is empty then function will also copy the sample files there.
+    To avoid this behavior, leave at least a placeholder file there,
+    for example the 'logtools.txt' file.
+    """
+    folder = platformdirs.user_data_dir(appname="logtools", appauthor=False, roaming=True)
+    folder_path = pathlib.Path(folder)
+    try:
+        folder_path.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        msg = f"Cannot create user folder {folder_path}"
+        error_message(msg)
+    if not any(folder_path.iterdir()):
+        # folder is empty
+        samples = pathlib.Path(__file__).parent / "samples"
+        assert samples.is_dir(), f"Cannot found samples folder {samples}"
+        for f in samples.iterdir():
+            shutil.copy(f, folder_path)
+    return folder_path
+
+
 def parse_arguments() -> Any:
     """
     Parse command line arguments and checks for errors
@@ -64,9 +89,7 @@ def parse_arguments() -> Any:
         epilog=FOLDER_HELP,
     )
     parser.add_argument("log_files", type=pathlib.Path, nargs="+", help="log files to display")
-    parser.add_argument(
-        "-p", "--pattern_file", type=pathlib.Path, help="pattern file in strict YAML format"
-    )
+    parser.add_argument("-p", "--pattern", help="pattern base name")
     args = None
     was_error = False
     bkp_stdout, bkp_stderr = sys.stdout, sys.stderr
@@ -92,25 +115,29 @@ def check_logfiles(log_files: list[pathlib.Path]) -> None:
             error_message(f"{log_file} log file not found!")
 
 
-def read_patterns(args: Any) -> LogPatterns:
+def get_patterns(args: Any) -> list[pathlib.Path]:
+    """
+    Get the pattern files matching the arguments
+    """
+    user_folder = get_or_create_user_folder()
+    if args.pattern:
+        pattern = args.pattern
+        if not pattern.lower().endswith(".yml"):
+            pattern += ".yml"
+    else:
+        pattern = "*.yml"
+    pattern_files = list(user_folder.glob(pattern))
+    if not pattern_files:
+        error_message(f"Pattern file {pattern} not found in {user_folder}")
+    return pattern_files
+
+
+def read_patterns(patterns: list[pathlib.Path]) -> LogPatterns:
     """
     Locate and check the pattern file
     """
-    pattern_file = pathlib.Path(DEFAULT_PATTERNS_YML)  # initial value, it will be overwritten
-    if args.pattern_file:
-        pattern_file = args.pattern_file
-        if not pattern_file.is_file():
-            error_message(f"{pattern_file} pattern file not found!")
-    else:
-        default_pattern_file = pattern_file
-        if default_pattern_file.is_file():
-            pattern_file = default_pattern_file
-        elif (pathlib.Path.home() / default_pattern_file).is_file():
-            pattern_file = pathlib.Path.home() / default_pattern_file
-        elif (pathlib.Path.home() / "Documents" / default_pattern_file).is_file():
-            pattern_file = pathlib.Path.home() / "Documents" / default_pattern_file
-        else:
-            error_message("Pattern file not found!\n" + dedent(FOLDER_HELP))
+    # TODO: here there should be some heuristics instead
+    pattern_file = patterns[0]
     log_patterns = LogPatterns(pattern_file)
     return log_patterns
 
@@ -121,7 +148,8 @@ def app_main() -> None:
     """
     args = parse_arguments()
     check_logfiles(args.log_files)
-    log_patterns = read_patterns(args)
+    patterns = get_patterns(args)
+    log_patterns = read_patterns(patterns)
     app_data = LogData(log_patterns, args.log_files)
     # Making GUI
     app = wx.App(0)

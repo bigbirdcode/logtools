@@ -1,0 +1,5 @@
+LogTools user folder.
+See details in:
+https://github.com/bigbirdcode/logtools
+
+BigBirdCode
