@@ -50,7 +50,7 @@ class LogDisplays(wx.Panel):
         num = int(text[0:2]) - 1
         self.app_data.set_block(num)
         self.GetParent().search_panel.update()
-        log_prop = self.GetParent().log_prop
+        log_prop = self.GetParent().search_panel.log_prop
         log_prop.SetValue(self.app_data.log_block.get_props())
         event.Skip()
 

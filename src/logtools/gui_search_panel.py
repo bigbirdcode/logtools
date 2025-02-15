@@ -29,6 +29,27 @@ class SearchPanel(wx.ScrolledWindow):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
+        label = wx.StaticText(self, -1, "Properties")
+        font = label.GetFont()
+        font.SetWeight(wx.FONTWEIGHT_BOLD)
+        label.SetFont(font)
+        self.sizer.Add(label, 0, wx.EXPAND)
+
+        self.log_prop = wx.TextCtrl(
+            self,
+            -1,
+            "",
+            wx.DefaultPosition,
+            wx.Size(200, 150),
+            wx.NO_BORDER | wx.TE_MULTILINE,
+        )
+        self.log_prop.SetValue(self.app_data.log_block.get_props())
+        self.sizer.Add(self.log_prop, 0, wx.EXPAND)
+
+        label = wx.StaticText(self, -1, "Searches")
+        label.SetFont(font)
+        self.sizer.Add(label, 0, wx.EXPAND)
+
         for i, pattern in enumerate(self.app_data.patterns):
             num_name = str(i)
             sub_sizer = self.create_pattern_row(num_name, pattern.name)

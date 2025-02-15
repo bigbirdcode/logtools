@@ -44,25 +44,11 @@ class MainFrame(wx.Frame):
         # create several panes
         self.search_panel = SearchPanel(self, self.app_data)
 
-        self.log_prop = wx.TextCtrl(
-            self,
-            -1,
-            "",
-            wx.DefaultPosition,
-            wx.Size(200, 150),
-            wx.NO_BORDER | wx.TE_MULTILINE,
-        )
-        self.log_prop.SetValue(self.app_data.log_block.get_props())
-
         self.log_panel = LogDisplays(self, self.app_data)
 
         # add the panes to the manager
         self._mgr.AddPane(
-            self.search_panel, aui.AuiPaneInfo().Left().Caption("Search Terms").CloseButton(False)
-        )
-        self._mgr.AddPane(
-            self.log_prop,
-            aui.AuiPaneInfo().Left().Caption("Selected Panel Properties").CloseButton(False),
+            self.search_panel, aui.AuiPaneInfo().Left().Caption("Details and Searches").CloseButton(False)
         )
         self._mgr.AddPane(self.log_panel, aui.AuiPaneInfo().CenterPane())
 
