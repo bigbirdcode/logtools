@@ -1,0 +1,8 @@
+# This file can be used to define rules for logtools.
+# Keys, every main lines, are the names of the patterns yaml files
+# and then the list values are the glob patterns for the log file names.
+# Since it's StrictYAML file you can freely use special characters like * and ?.
+# If you don't need different patterns, you can simply delete this file.
+patterns:
+  - *.log
+  - *.txt
