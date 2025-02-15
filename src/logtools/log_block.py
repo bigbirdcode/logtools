@@ -7,7 +7,7 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from logtools.log_pattern import LogPattern
 from logtools.log_patterns import LogPatterns
@@ -20,6 +20,16 @@ LOG_LEVELS = {
     "ERROR": "E",
     "FATAL": "F",
 }
+
+
+def format_timedelta(delta: timedelta) -> str:
+    """
+    Format a timedelta object to a string in the format 'hh:mm:ss'.
+    """
+    total_seconds = int(delta.total_seconds())
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 def extract_datetime(line: str) -> datetime | None:
@@ -47,8 +57,7 @@ def calculate_delta(start: datetime | None, end: datetime | None) -> str:
         delta = end - start
     except ValueError:
         return "unknown"
-    # str(delta) result something like '0:07:05.258000'
-    return str(delta)[:-3]
+    return format_timedelta(delta)
 
 
 class LogBlock:
@@ -166,7 +175,7 @@ class LogBlock:
         Return all lines to display
         """
         # this change will have a button on the UI later
-        if True:
+        if False:
             return "\n".join(self.alter_line(line) for line in self.lines)
         else:
             return "\n".join(self.lines)
