@@ -7,6 +7,7 @@ https://github.com/bigbirdcode/logtools
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import wx
@@ -25,13 +26,21 @@ class SearchPanel(wx.ScrolledWindow):
     def __init__(self, parent: Any, app_data: LogData) -> None:
         super().__init__(parent, -1, style=wx.VSCROLL | wx.ALWAYS_SHOW_SB)
         self.app_data = app_data
-        self.texts: list[wx.TextCtrl] = []
+        self.texts: dict[str, wx.TextCtrl] = {}
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
-        label = wx.StaticText(self, -1, "Properties")
+        label = wx.StaticText(self, -1, "Patterns:")
         font = label.GetFont()
         font.SetWeight(wx.FONTWEIGHT_BOLD)
+        label.SetFont(font)
+        self.sizer.Add(label, 0, wx.EXPAND)
+
+        patterns_name = self.app_data.patterns.file_path.stem
+        label = wx.StaticText(self, -1, f"    {patterns_name}")
+        self.sizer.Add(label, 0, wx.EXPAND)
+
+        label = wx.StaticText(self, -1, "Properties")
         label.SetFont(font)
         self.sizer.Add(label, 0, wx.EXPAND)
 
@@ -46,17 +55,24 @@ class SearchPanel(wx.ScrolledWindow):
         self.log_prop.SetValue(self.app_data.log_block.get_props())
         self.sizer.Add(self.log_prop, 0, wx.EXPAND)
 
+        label = wx.StaticText(self, -1, "Free search")
+        label.SetFont(font)
+        self.sizer.Add(label, 0, wx.EXPAND)
+
+        pattern_row = self.create_pattern_row("free", "", free_search=True)
+        self.sizer.Add(pattern_row, 0, wx.EXPAND)
+
         label = wx.StaticText(self, -1, "Searches")
         label.SetFont(font)
         self.sizer.Add(label, 0, wx.EXPAND)
 
-        for i, pattern in enumerate(self.app_data.patterns):
-            num_name = str(i)
-            sub_sizer = self.create_pattern_row(num_name, pattern.name)
-            self.sizer.Add(sub_sizer, 0, wx.EXPAND)
+        for pattern in self.app_data.patterns.get_yaml_patterns():
+            pattern_row = self.create_pattern_row(pattern.p_id, pattern.name)
+            self.sizer.Add(pattern_row, 0, wx.EXPAND)
 
-        sub_sizer = self.create_pattern_row(str(len(self.app_data.patterns)), "<add new>")
-        self.sizer.Add(sub_sizer, 0, wx.EXPAND)
+        new_id = self.app_data.patterns.get_next_p_id()
+        pattern_row = self.create_pattern_row(new_id, "<add new>")
+        self.sizer.Add(pattern_row, 0, wx.EXPAND)
 
         self.update()
         self.SetSizer(self.sizer)
@@ -64,7 +80,7 @@ class SearchPanel(wx.ScrolledWindow):
         self.SetScrollRate(0, 20)
         self.FitInside()
 
-    def create_pattern_row(self, num_name: str, name: str) -> Any:
+    def create_pattern_row(self, p_id: str, name: str, free_search: bool = False) -> Any:
         """
         Create a row to display pattern name, number and controls
         """
@@ -72,16 +88,19 @@ class SearchPanel(wx.ScrolledWindow):
         text = wx.TextCtrl(
             self,
             -1,
-            name,
-            style=wx.TE_READONLY,
+            value=name,
+            style=wx.TE_PROCESS_ENTER if free_search else wx.TE_READONLY,
             size=(200, -1),
-            name=num_name,
+            name=p_id,
         )
         text.SetMinSize((20, -1))
-        text.Bind(wx.EVT_LEFT_DOWN, self.on_click_edit)
-        self.texts.append(text)
-        btn_prev = wx.Button(self, -1, "<", size=(25, 25), name="<" + num_name)
-        btn_next = wx.Button(self, -1, ">", size=(25, 25), name=">" + num_name)
+        if free_search:
+            text.Bind(wx.EVT_TEXT_ENTER, self.on_enter_free_search)
+        else:
+            text.Bind(wx.EVT_LEFT_DOWN, self.on_click_edit)
+        self.texts[p_id] = text
+        btn_prev = wx.Button(self, -1, "<", size=(25, 25), name="<" + p_id)
+        btn_next = wx.Button(self, -1, ">", size=(25, 25), name=">" + p_id)
         self.Bind(wx.EVT_BUTTON, self.on_click_search, btn_prev)
         self.Bind(wx.EVT_BUTTON, self.on_click_search, btn_next)
         sub_sizer.Add(text, 1, wx.EXPAND)
@@ -93,10 +112,10 @@ class SearchPanel(wx.ScrolledWindow):
         """
         Update pattern texts names with the found line numbers for the selected log
         """
-        for i, pattern in enumerate(self.app_data.log_block.patterns):
-            num = len(self.app_data.log_block.pattern_lines[pattern.name])
+        for pattern in self.app_data.log_block.patterns.get_yaml_patterns():
+            num = len(self.app_data.log_block.pattern_lines[pattern.p_id])
             name = f"{pattern.name}: {num}"
-            self.texts[i].SetValue(name)
+            self.texts[pattern.p_id].SetValue(name)
 
     def on_click_search(self, event: Any) -> None:
         """
@@ -104,9 +123,8 @@ class SearchPanel(wx.ScrolledWindow):
         """
         obj_name = event.GetEventObject().GetName()
         direction = obj_name[0]
-        pattern_num = int(obj_name[1:])
-        if pattern_num < len(self.app_data.patterns):
-            self.GetParent().log_panel.find_line(direction, pattern_num)
+        p_id = obj_name[1:]
+        self.GetParent().log_panel.find_line(direction, p_id)
         event.Skip()
 
     def on_click_edit(self, event: Any) -> None:
@@ -114,26 +132,40 @@ class SearchPanel(wx.ScrolledWindow):
         Handle pattern edit clicks
         """
         obj_name = event.GetEventObject().GetName()
-        pattern_num = int(obj_name)
-        new_pattern = len(self.app_data.patterns) == pattern_num
-        if new_pattern:
+        new_pattern = False
+        pattern = self.app_data.patterns.get_pattern(obj_name)
+        if pattern is None:
+            new_pattern = True
             pattern = create_empty_pattern()
-        else:
-            pattern = self.app_data.patterns[pattern_num]
+            pattern.p_id = obj_name
         dlg = PatternEditDialog(self, pattern)
         dlg.CenterOnScreen()
         val = dlg.ShowModal()
         if val == wx.ID_OK:
             pattern = dlg.get_pattern()
             if new_pattern:
-                self.app_data.patterns.append(pattern)
-                sub_sizer = self.create_pattern_row(str(len(self.app_data.patterns)), "<add new>")
+                self.app_data.patterns.add_pattern(pattern)
+                sub_sizer = self.create_pattern_row(
+                    self.app_data.patterns.get_next_p_id(), "<add new>"
+                )
                 self.sizer.Add(sub_sizer, 0, wx.EXPAND)
                 self.SetVirtualSize(self.sizer.GetMinSize())
                 self.FitInside()
             else:
-                self.app_data.patterns[pattern_num] = pattern
+                self.app_data.patterns.update_pattern(pattern)
             self.GetParent().log_panel.update()
             self.update()
             self.app_data.yaml_modified = True
         dlg.Destroy()
+
+    def on_enter_free_search(self, event: Any) -> None:
+        """
+        Handle free search enter
+        """
+        raw_search = event.GetEventObject().GetValue()
+        free_search = self.app_data.patterns.free_search
+        free_search.raw_pattern = raw_search
+        free_search.pattern = re.compile(raw_search)
+        free_search.modified = True
+        self.GetParent().log_panel.update()
+        self.update()

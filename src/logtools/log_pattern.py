@@ -16,9 +16,10 @@ class LogPattern:
     A log pattern attached to a log, holding also the line references
     """
 
-    def __init__(self, name: str, pattern_data: dict[str, Any]) -> None:
+    def __init__(self, name: str, p_id: str, pattern_data: dict[str, Any]) -> None:
         # Required attributes
         self.name = name
+        self.p_id = p_id
         self.raw_pattern = pattern_data["pattern"]
         self.pattern = re.compile(self.raw_pattern)
         self.block_start = pattern_data["block_start"]
@@ -64,4 +65,4 @@ def create_empty_pattern() -> LogPattern:
         "style": [],
         "visible": True,
     }
-    return LogPattern("", pattern_data)
+    return LogPattern("", "", pattern_data)

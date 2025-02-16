@@ -50,7 +50,9 @@ class LogDisplay(stc.StyledTextCtrl):
         Styles are referenced by numbers, starting from 1
         """
         self.StyleClearAll()
-        for i, pattern in enumerate(self.log_block.patterns, stc.STC_STYLE_LASTPREDEFINED + 1):
+        for i, pattern in enumerate(
+            self.log_block.patterns.get_all_patterns(), stc.STC_STYLE_LASTPREDEFINED + 1
+        ):
             if i > stc.STC_STYLE_MAX:
                 err_msg = "Too many patterns"
                 raise ValueError(err_msg)
@@ -64,8 +66,8 @@ class LogDisplay(stc.StyledTextCtrl):
         Apply the pattern style information to the log lines
         """
         self.ClearDocumentStyle()
-        for pattern in self.log_block.patterns:
-            for line in self.log_block.pattern_lines[pattern.name]:
+        for pattern in self.log_block.patterns.get_all_patterns():
+            for line in self.log_block.pattern_lines[pattern.p_id]:
                 self.StartStyling(self.PositionFromLine(line))
                 self.SetStyling(len(self.log_block.lines[line]), pattern.style_num)
 
@@ -79,21 +81,22 @@ class LogDisplay(stc.StyledTextCtrl):
         self.create_pattern_styles()
         self.apply_pattern_styles()
 
-    def find_line(self, direction: str, pattern_num: int) -> None:
+    def find_line(self, direction: str, p_id: str) -> None:
         """
         Find the previous or next line
         """
-        pattern = self.log_block.patterns[pattern_num]
+        pattern = self.log_block.patterns.get_pattern(p_id)
+        assert pattern is not None
         act_line = self.GetCurrentLine()
         next_line = act_line
         if direction == ">":
-            for line in self.log_block.pattern_lines[pattern.name]:
+            for line in self.log_block.pattern_lines[pattern.p_id]:
                 if line > act_line:
                     next_line = line
                     break
         else:
             prev = -1
-            for line in self.log_block.pattern_lines[pattern.name]:
+            for line in self.log_block.pattern_lines[pattern.p_id]:
                 if line >= act_line:
                     break
                 prev = line

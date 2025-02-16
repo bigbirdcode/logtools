@@ -35,6 +35,8 @@ class PatternEditDialog(sc.SizedDialog):
             self, parent, -1, "Edit Pattern", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
         )
 
+        self.pattern = pattern
+
         pane = self.GetContentsPane()
         pane.SetSizerType("form")
 
@@ -120,6 +122,6 @@ class PatternEditDialog(sc.SizedDialog):
             pattern_data["style"].append("underline")
         if self.color != "000000":
             pattern_data["style"].append(self.color)
-        pattern = LogPattern(pattern_name, pattern_data)
+        pattern = LogPattern(pattern_name, self.pattern.p_id, pattern_data)
         pattern.modified = True
         return pattern

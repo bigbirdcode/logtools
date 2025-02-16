@@ -54,11 +54,11 @@ class LogDisplays(wx.Panel):
         log_prop.SetValue(self.app_data.log_block.get_props())
         event.Skip()
 
-    def find_line(self, direction: str, pattern_num: int) -> None:
+    def find_line(self, direction: str, p_id: int) -> None:
         """
         Find line command is forwarded to the actual log displayed
         """
-        self.anb.GetCurrentPage().find_line(direction, pattern_num)
+        self.anb.GetCurrentPage().find_line(direction, p_id)
 
     def update(self) -> None:
         """

@@ -76,7 +76,9 @@ class LogBlock:
         self.duration = ""
         self.props = [f"Name: {self.name}"]
         self.lines: list[str] = []
-        self.pattern_lines: dict[str, list[int]] = {pattern.name: [] for pattern in self.patterns}
+        self.pattern_lines: dict[str, list[int]] = {
+            pattern.p_id: [] for pattern in self.patterns.get_all_patterns()
+        }
 
     def add(self, line: str) -> None:
         """
@@ -125,8 +127,10 @@ class LogBlock:
         """
         Search the lines for all the patterns and record line numbers
         """
-        for pattern in self.patterns:
-            self.search_pattern(pattern)
+        for pattern in self.patterns.get_all_patterns():
+            if pattern.raw_pattern:
+                # Do not search for empty things like free search
+                self.search_pattern(pattern)
 
     def search_pattern(self, pattern: LogPattern) -> None:
         """
@@ -136,15 +140,15 @@ class LogBlock:
         for num, line in enumerate(self.lines):
             if pattern.search(line):
                 lines.append(num)
-        self.pattern_lines[pattern.name] = lines
+        self.pattern_lines[pattern.p_id] = lines
 
     def check_needed(self) -> bool:
         """
         Check whether all the needed patterns were found or not
         """
-        for pattern in self.patterns:
+        for pattern in self.patterns.get_all_patterns():
             if pattern.needed:
-                if not self.pattern_lines[pattern.name]:
+                if not self.pattern_lines[pattern.p_id]:
                     return False
         return True
 

@@ -35,7 +35,7 @@ def pattern() -> pattern_fixture:
 
 
 def test_good_pattern(pattern: pattern_fixture) -> None:
-    lpat = LogPattern("My Name", pattern)
+    lpat = LogPattern("My Name", "1", pattern)
     assert lpat.name == "My Name"
     assert isinstance(lpat.pattern, re.Pattern)
     assert lpat.block_start is True
@@ -50,16 +50,16 @@ def test_good_pattern(pattern: pattern_fixture) -> None:
 def test_missing_pattern(pattern: pattern_fixture) -> None:
     del pattern["pattern"]
     with pytest.raises(KeyError):
-        _ = LogPattern("My Name", pattern)
+        _ = LogPattern("My Name", "1", pattern)
 
 
 def test_get_data(pattern: pattern_fixture) -> None:
-    lpat = LogPattern("My Name", pattern)
+    lpat = LogPattern("My Name", "1", pattern)
     data = lpat.get_data()
     assert data == pattern
 
 
 def test_search(pattern: pattern_fixture) -> None:
-    lpat = LogPattern("My Name", pattern)
+    lpat = LogPattern("My Name", "1", pattern)
     assert lpat.search("x My Pattern x")
     assert not lpat.search("x My xx Pattern x")
