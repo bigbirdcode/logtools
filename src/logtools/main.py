@@ -93,7 +93,7 @@ def main() -> None:
     try:
         app_main()
     except Exception as exc:  # noqa: BLE001 - blind exception
-        error_message(repr(exc))
+        error_message(str(exc))
 
 
 if __name__ == "__main__":

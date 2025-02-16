@@ -67,11 +67,13 @@ def get_patterns_from_rules(
     """
     rules_file = user_folder / "rules.yml"
     rules = sy.load(rules_file.read_text(), SCHEMA).data
-    for patterns_file, globs in rules.items():
+    for patterns, globs in rules.items():
         for glob in globs:
             for log_file in log_files:
                 if log_file.match(glob):
-                    return LogPatterns(user_folder / patterns_file)
+                    if not patterns.lower().endswith(".yml"):
+                        patterns += ".yml"
+                    return LogPatterns(user_folder / patterns)
     error_message(f"No patterns file found for {log_files}")
 
 
