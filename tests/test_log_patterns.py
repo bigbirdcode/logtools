@@ -15,9 +15,6 @@ from strictyaml import YAMLValidationError
 from logtools.log_patterns import LogPatterns, parse_yaml
 
 
-TEST_PATTERNS_YML = pathlib.Path("tests/test_patterns.yml")
-
-
 def test_parse_yml_ok() -> None:
     yml = """
     App start:
@@ -66,20 +63,20 @@ def test_parse_yml_wrong_missing() -> None:
         _ = parse_yaml(yml)
 
 
-def test_read_yml() -> None:
-    lps = LogPatterns(TEST_PATTERNS_YML)
+def test_read_yml(test_resources: pathlib.Path) -> None:
+    lps = LogPatterns(test_resources / "test_patterns.yml")
     assert list(lps.get_names()) == ["App start", "App end"]
 
 
-def test_get_block_starts() -> None:
-    lps = LogPatterns(TEST_PATTERNS_YML)
+def test_get_block_starts(test_resources: pathlib.Path) -> None:
+    lps = LogPatterns(test_resources / "test_patterns.yml")
     patterns = list(lps.get_block_starts())
     assert len(patterns) == 1
     assert patterns[0].name == "App start"
 
 
-def test_get_names() -> None:
-    lps = LogPatterns(TEST_PATTERNS_YML)
+def test_get_names(test_resources: pathlib.Path) -> None:
+    lps = LogPatterns(test_resources / "test_patterns.yml")
     names = list(lps.get_names())
     assert len(names) == 2
     assert names[0] == "App start"

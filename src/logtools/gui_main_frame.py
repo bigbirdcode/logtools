@@ -48,7 +48,8 @@ class MainFrame(wx.Frame):
 
         # add the panes to the manager
         self._mgr.AddPane(
-            self.search_panel, aui.AuiPaneInfo().Left().Caption("Details and Searches").CloseButton(False)
+            self.search_panel,
+            aui.AuiPaneInfo().Left().Caption("Details and Searches").CloseButton(False),
         )
         self._mgr.AddPane(self.log_panel, aui.AuiPaneInfo().CenterPane())
 

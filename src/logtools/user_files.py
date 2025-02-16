@@ -75,11 +75,14 @@ def get_patterns_from_rules(
     error_message(f"No patterns file found for {log_files}")
 
 
-def get_patterns(patterns: str | None, log_files: list[pathlib.Path]) -> LogPatterns:
+def get_patterns(
+    patterns: str | None, log_files: list[pathlib.Path], user_folder: pathlib.Path | None = None
+) -> LogPatterns:
     """
     Get the pattern files matching the arguments
     """
-    user_folder = get_or_create_user_folder()
+    if user_folder is None:
+        user_folder = get_or_create_user_folder()
     if patterns:
         return get_exact_patterns(user_folder, patterns)
     yaml_files = list(user_folder.glob("*.yml"))
