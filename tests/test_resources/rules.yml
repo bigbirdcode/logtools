@@ -1,0 +1,7 @@
+# Test rules
+test_patterns:
+  - "*.log"
+  - "*.txt"
+test_patterns_2:
+  - "*.xxx"
+  - "*.yyy"

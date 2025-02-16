@@ -10,6 +10,9 @@ IF %ERRORLEVEL% NEQ 0 (SET CHECK_FAILURE=True)
 mypy .
 IF %ERRORLEVEL% NEQ 0 (SET CHECK_FAILURE=True)
 
+pytest
+IF %ERRORLEVEL% NEQ 0 (SET CHECK_FAILURE=True)
+
 IF %CHECK_FAILURE% == True (
 ECHO.
 ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
