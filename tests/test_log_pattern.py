@@ -37,6 +37,7 @@ def pattern() -> pattern_fixture:
 def test_good_pattern(pattern: pattern_fixture) -> None:
     lpat = LogPattern("My Name", "1", pattern)
     assert lpat.name == "My Name"
+    assert lpat.p_id == "1"
     assert isinstance(lpat.pattern, re.Pattern)
     assert lpat.block_start is True
     assert lpat.needed is False
