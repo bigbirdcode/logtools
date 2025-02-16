@@ -177,8 +177,7 @@ class LogBlock:
         # this change will have a button on the UI later
         if False:
             return "\n".join(self.alter_line(line) for line in self.lines)
-        else:
-            return "\n".join(self.lines)
+        return "\n".join(self.lines)
 
     def get_props(self) -> str:
         """

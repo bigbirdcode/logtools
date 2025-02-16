@@ -13,6 +13,12 @@ from typing import NoReturn
 import wx
 
 
+class LogToolsError(Exception):
+    """
+    Custom exception for the LogTools application
+    """
+
+
 def error_message(msg: str) -> NoReturn:
     """
     Print out error messages either to the console or to a dialog box then exit
@@ -28,5 +34,5 @@ def error_message(msg: str) -> NoReturn:
         dlg.Destroy()
         app.Destroy()
     else:
-        print(msg)  # noqa: T201 - print ok here
+        print("ERROR:", msg)  # noqa: T201 - print ok here
     sys.exit(1)

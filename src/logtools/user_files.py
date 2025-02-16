@@ -14,7 +14,7 @@ import platformdirs
 import strictyaml as sy
 
 from logtools.log_patterns import LogPatterns
-from logtools.utils import error_message
+from logtools.utils import LogToolsError
 
 
 SCHEMA = sy.MapPattern(
@@ -37,7 +37,7 @@ def get_or_create_user_folder() -> pathlib.Path:
         folder_path.mkdir(parents=True, exist_ok=True)
     except OSError:
         msg = f"Cannot create user folder {folder_path}"
-        error_message(msg)
+        raise LogToolsError(msg) from None
     if not any(folder_path.iterdir()):
         # folder is empty
         samples = pathlib.Path(__file__).parent / "samples"
@@ -55,7 +55,8 @@ def get_exact_patterns(user_folder: pathlib.Path, patterns: str) -> LogPatterns:
         patterns += ".yml"
     patterns_file = user_folder / patterns
     if not patterns_file.is_file():
-        error_message(f"Pattern file {patterns} not found in {user_folder}")
+        msg = f"Pattern file {patterns} not found in {user_folder}"
+        raise LogToolsError(msg)
     return LogPatterns(patterns_file)
 
 
@@ -74,7 +75,8 @@ def get_patterns_from_rules(
                     if not patterns.lower().endswith(".yml"):
                         patterns += ".yml"
                     return LogPatterns(user_folder / patterns)
-    error_message(f"No patterns file found for {log_files}")
+    msg = f"No patterns file found for {log_files}"
+    raise LogToolsError(msg)
 
 
 def get_patterns(
@@ -89,12 +91,15 @@ def get_patterns(
         return get_exact_patterns(user_folder, patterns)
     yaml_files = list(user_folder.glob("*.yml"))
     if not yaml_files:
-        error_message(f"No pattern files found in {user_folder}")
+        msg = f"No pattern files found in {user_folder}"
+        raise LogToolsError(msg)
     if len(yaml_files) == 1:
         yaml_file = yaml_files[0]
         if yaml_file.name == "rules.yml":
-            error_message("Only rules.yml found, please create a patterns file")
+            msg = "Only rules.yml found, please create a patterns file"
+            raise LogToolsError(msg)
         return LogPatterns(yaml_file)
     if "rules.yml" not in [y.name for y in yaml_files]:
-        error_message("Multiple pattern files found, but no rules.yml")
+        msg = "Multiple pattern files found, but no rules.yml"
+        raise LogToolsError(msg)
     return get_patterns_from_rules(user_folder, log_files)

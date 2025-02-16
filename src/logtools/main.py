@@ -18,7 +18,7 @@ import wx
 from logtools import user_files
 from logtools.gui_main_frame import MainFrame
 from logtools.log_data import LogData
-from logtools.utils import error_message
+from logtools.utils import LogToolsError, error_message
 
 
 FOLDER_HELP = """
@@ -57,7 +57,7 @@ def parse_arguments() -> Any:
     finally:
         sys.stdout, sys.stderr = bkp_stdout, bkp_stderr
     if was_error:
-        error_message(output.getvalue())
+        raise LogToolsError(output.getvalue())
     return args
 
 
@@ -67,7 +67,8 @@ def check_logfiles(log_files: list[pathlib.Path]) -> None:
     """
     for log_file in log_files:
         if not log_file.is_file():
-            error_message(f"{log_file} log file not found!")
+            msg = f"{log_file} log file not found!"
+            raise LogToolsError(msg)
 
 
 def app_main() -> None:
